@@ -296,13 +296,17 @@ function renderBarChart(elementId, counts) {
       const texteNom = nom.toUpperCase();
 
       if (
-        texteNom.includes('TRÈS SATISFAIT') ||
-        texteNom.includes('SATISFAIT') ||
-        texteNom.includes('TRÈS BON') ||
-        texteNom === 'OUI'
-      ) {
-        classe = 'sat-good';
-      }
+       if (
+  texteNom.includes('TRÈS SATISFAIT') ||
+  texteNom.includes('SATISFAIT') ||
+  texteNom.includes('TRÈS BON') ||
+  texteNom === 'EXCELLENT' ||
+  texteNom === 'BON' ||
+  texteNom === 'ADAPTÉ' ||
+  texteNom === 'OUI'
+) {
+  classe = 'sat-good';
+}
 
       if (
         texteNom.includes('INSATISFAIT') ||
