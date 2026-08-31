@@ -215,6 +215,8 @@
       <div class="results" id="rythme"></div>
     </div>
   </div>
+
+  <script>
 function renderBarChart(elementId, counts) {
   const el = document.getElementById(elementId);
   const entries = Object.entries(counts);
@@ -236,7 +238,6 @@ function renderBarChart(elementId, counts) {
     </div>
   `).join('');
 }
-  <script>
     grist.ready({
       requiredAccess: 'read table'
     });
