@@ -114,7 +114,34 @@
       font-weight: 700;
       white-space: nowrap;
     }
-.bar-chart {
+.satisfaction-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 11px;
+}
+   .sat-row {
+  display: grid;
+  grid-template-columns: 1fr 32px;
+  gap: 5px;
+  align-items: center;
+}
+
+.sat-bar {
+  height: 10px;
+  border-radius: 6px;
+}
+
+.sat-good { background: #2e9d50; }
+.sat-medium { background: #f5a623; }
+.sat-bad { background: #d92b2b; }
+
+.sat-value {
+  font-weight: 700;
+  text-align: right;
+}
+    .bar-chart {
   display: flex;
   flex-direction: column;
   gap: 7px;
@@ -192,7 +219,7 @@
   <div class="bottom-grid">
     <div class="card accueil">
       <div class="card-title">ACCUEIL SUR SITE</div>
-      <div class="results" id="accueil"></div>
+      <div class="satisfaction-chart" id="accueil"></div>
     </div>
 
     <div class="card restauration">
@@ -237,6 +264,68 @@ function renderBarChart(elementId, counts) {
       <div class="bar-value">${value}</div>
     </div>
   `).join('');
+}
+    function renderSatisfaction(elementId, records, columnName) {
+  const el = document.getElementById(elementId);
+
+  const valeurs = records
+    .map(r => texte(r[columnName]))
+    .filter(Boolean);
+
+  if (!valeurs.length) {
+    el.innerHTML = '<div class="empty">Aucune réponse</div>';
+    return;
+  }
+
+  const compte = {};
+
+  valeurs.forEach(v => {
+    compte[v] = (compte[v] || 0) + 1;
+  });
+
+  const total = valeurs.length;
+
+  const lignes = Object.entries(compte)
+    .sort((a, b) => b[1] - a[1])
+    .map(([nom, nb]) => {
+
+      const pct = Math.round((nb / total) * 100);
+
+      let classe = 'sat-medium';
+
+      const texteNom = nom.toUpperCase();
+
+      if (
+        texteNom.includes('TRÈS SATISFAIT') ||
+        texteNom.includes('SATISFAIT') ||
+        texteNom.includes('TRÈS BON') ||
+        texteNom === 'OUI'
+      ) {
+        classe = 'sat-good';
+      }
+
+      if (
+        texteNom.includes('INSATISFAIT') ||
+        texteNom.includes('TRÈS INSATISFAIT') ||
+        texteNom.includes('MAUVAIS') ||
+        texteNom === 'NON'
+      ) {
+        classe = 'sat-bad';
+      }
+
+      return `
+        <div class="sat-row">
+          <div>
+            <div>${nom}</div>
+            <div class="sat-bar ${classe}" style="width:${pct}%"></div>
+          </div>
+          <div class="sat-value">${pct}%</div>
+        </div>
+      `;
+    })
+    .join('');
+
+  el.innerHTML = lignes;
 }
     grist.ready({
       requiredAccess: 'read table'
@@ -330,7 +419,7 @@ records.forEach(r => {
 });
 
 renderBarChart('organisme', organismes);
-      afficherRepartition(records, 'Accueil_sur_site', 'accueil');
+      renderSatisfaction('accueil', records, 'Accueil_sur_site');    
       afficherRepartition(records, 'Restauration', 'restauration');
       afficherRepartition(records, 'Site_de_manoeuvre', 'site');
       afficherRepartition(records, 'Durée_EIZ', 'duree');
