@@ -15,67 +15,69 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 22px;
+      padding: 14px;
       background: #ffffff;
     }
 
     h1 {
       text-align: center;
-      font-size: 26px;
-      margin: 0 0 22px 0;
+      font-size: 24px;
+      margin: 0 0 14px 0;
     }
 
     .cards {
       display: flex;
-      gap: 18px;
+      gap: 16px;
     }
 
     .card {
       flex: 1;
-      border-radius: 24px;
-      padding: 24px 18px 22px;
+      border-radius: 22px;
+      padding: 18px 16px;
       text-align: center;
+      min-height: 250px;
     }
 
     .green {
-      background: #e6f5e6;
+      background: #e7f5e7;
     }
 
     .blue {
-      background: #e5f0ff;
+      background: #e7f1ff;
     }
 
     .title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
-      min-height: 44px;
+      min-height: 38px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .chart-area {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 22px;
-      margin: 8px 0 16px;
+      gap: 16px;
+      margin: 4px 0 8px;
     }
 
     .donut {
-      width: 145px;
-      height: 145px;
+      width: 105px;
+      height: 105px;
       border-radius: 50%;
       position: relative;
       flex-shrink: 0;
+      background: #d9dde3;
     }
 
     .donut::after {
       content: "";
       position: absolute;
-      width: 82px;
-      height: 82px;
+      width: 60px;
+      height: 60px;
       background: white;
       border-radius: 50%;
       top: 50%;
@@ -85,21 +87,24 @@
 
     .legend {
       text-align: left;
-      font-size: 15px;
-      line-height: 1.8;
+      font-size: 13px;
+      line-height: 1.7;
+      min-width: 115px;
     }
 
     .legend-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
+      white-space: nowrap;
     }
 
     .dot {
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       display: inline-block;
+      flex-shrink: 0;
     }
 
     .yes {
@@ -111,13 +116,14 @@
     }
 
     .no {
-      background: #c62828;
+      background: #d32f2f;
     }
 
     .percent {
-      font-size: 48px;
+      font-size: 42px;
       font-weight: 800;
-      margin-top: 8px;
+      line-height: 1;
+      margin-top: 4px;
     }
 
     .green .percent {
@@ -129,9 +135,9 @@
     }
 
     .caption {
-      font-size: 13px;
-      margin-top: 2px;
-      font-weight: 600;
+      font-size: 11px;
+      margin-top: 5px;
+      font-weight: 700;
       opacity: 0.8;
     }
   </style>
@@ -228,12 +234,16 @@
       document.getElementById('partPeutEtre').textContent = pPeutEtre + ' %';
       document.getElementById('participation').textContent = pOui + ' %';
 
-      document.getElementById('donutParticipation').style.background =
-        `conic-gradient(
-          #2e7d32 0 ${pOui}%,
-          #f9a825 ${pOui}% ${pOui + pPeutEtre}%,
-          #c62828 ${pOui + pPeutEtre}% 100%
-        )`;
+      if (totalPart === 0) {
+        document.getElementById('donutParticipation').style.background = '#d9dde3';
+      } else {
+        document.getElementById('donutParticipation').style.background =
+          `conic-gradient(
+            #2e7d32 0 ${pOui}%,
+            #f9a825 ${pOui}% ${pOui + pPeutEtre}%,
+            #d32f2f ${pOui + pPeutEtre}% 100%
+          )`;
+      }
 
       const recommandation = records
         .map(r => String(r.Recommander_EIZ || '').trim().toUpperCase())
@@ -250,11 +260,15 @@
       document.getElementById('recNon').textContent = rNon + ' %';
       document.getElementById('recommandation').textContent = rOui + ' %';
 
-      document.getElementById('donutRecommandation').style.background =
-        `conic-gradient(
-          #2e7d32 0 ${rOui}%,
-          #c62828 ${rOui}% 100%
-        )`;
+      if (totalRec === 0) {
+        document.getElementById('donutRecommandation').style.background = '#d9dde3';
+      } else {
+        document.getElementById('donutRecommandation').style.background =
+          `conic-gradient(
+            #2e7d32 0 ${rOui}%,
+            #d32f2f ${rOui}% 100%
+          )`;
+      }
     });
   </script>
 
