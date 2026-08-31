@@ -114,7 +114,44 @@
       font-weight: 700;
       white-space: nowrap;
     }
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 8px;
+}
 
+.bar-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 42px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.bar-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-track {
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(255,255,255,0.75);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 7px;
+  background: #8e5fd2;
+}
+
+.bar-value {
+  text-align: right;
+  font-weight: 700;
+}
     .empty {
       text-align: center;
       color: #78909c;
@@ -143,7 +180,7 @@
   <div class="top-grid">
     <div class="card participants">
       <div class="card-title">PARTICIPANTS</div>
-      <div class="results" id="fonction"></div>
+      <div class="bar-chart" id="fonction"></div>
     </div>
 
     <div class="card organismes">
@@ -178,7 +215,27 @@
       <div class="results" id="rythme"></div>
     </div>
   </div>
+function renderBarChart(elementId, counts) {
+  const el = document.getElementById(elementId);
+  const entries = Object.entries(counts);
 
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty">Aucune réponse</div>';
+    return;
+  }
+
+  const max = Math.max(...entries.map(([label, value]) => value));
+
+  el.innerHTML = entries.map(([label, value]) => `
+    <div class="bar-row">
+      <div class="bar-label">${label}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${(value / max) * 100}%"></div>
+      </div>
+      <div class="bar-value">${value}</div>
+    </div>
+  `).join('');
+}
   <script>
     grist.ready({
       requiredAccess: 'read table'
@@ -252,7 +309,16 @@
       document.getElementById('moyenne').textContent =
         moyenne;
 
-      afficherRepartition(records, 'Fonction', 'fonction');
+      const fonctions = {};
+
+records.forEach(r => {
+  const valeur = texte(r.Fonction);
+  if (valeur) {
+    fonctions[valeur] = (fonctions[valeur] || 0) + 1;
+  }
+});
+
+renderBarChart('fonction', fonctions);
       afficherRepartition(records, 'Organisme', 'organisme');
       afficherRepartition(records, 'Accueil_sur_site', 'accueil');
       afficherRepartition(records, 'Restauration', 'restauration');
