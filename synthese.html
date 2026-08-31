@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synthèse RETEX – EIZ Cazaux 2026</title>
+
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 14px;
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #263238;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 12px;
+      font-size: 24px;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .kpi {
+      border-radius: 18px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .kpi.retex { background: #e8f1ff; }
+    .kpi.note  { background: #e8f7ec; }
+
+    .kpi-title {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .kpi-value {
+      font-size: 34px;
+      font-weight: 800;
+      margin-top: 3px;
+    }
+
+    .retex .kpi-value { color: #1565c0; }
+    .note .kpi-value  { color: #188038; }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .card {
+      border-radius: 18px;
+      padding: 12px;
+      min-height: 150px;
+    }
+
+    .participants { background: #f3e9ff; }
+    .organismes   { background: #e5f2ff; }
+    .accueil      { background: #e7f6e9; }
+    .restauration { background: #fff4dc; }
+    .site         { background: #e8f4f4; }
+    .duree        { background: #f7e9f1; }
+    .rythme       { background: #eeeafd; }
+
+    .card-title {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .results {
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px solid rgba(0,0,0,.08);
+      padding: 3px 0;
+    }
+
+    .result-row:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .value {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .empty {
+      text-align: center;
+      color: #78909c;
+      margin-top: 35px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>SYNTHÈSE RETEX – EIZ CAZAUX 2026</h1>
+
+  <div class="kpis">
+    <div class="kpi retex">
+      <div class="kpi-title">NOMBRE DE RETEX</div>
+      <div class="kpi-value" id="nombreRetex">0</div>
+    </div>
+
+    <div class="kpi note">
+      <div class="kpi-title">SENTIMENT GÉNÉRAL / 5</div>
+      <div class="kpi-value" id="moyenne">0</div>
+    </div>
+  </div>
+
+  <div class="top-grid">
+    <div class="card participants">
+      <div class="card-title">PARTICIPANTS</div>
+      <div class="results" id="fonction"></div>
+    </div>
+
+    <div class="card organismes">
+      <div class="card-title">RÉPARTITION SERVICES / ORGANISMES</div>
+      <div class="results" id="organisme"></div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="card accueil">
+      <div class="card-title">ACCUEIL SUR SITE</div>
+      <div class="results" id="accueil"></div>
+    </div>
+
+    <div class="card restauration">
+      <div class="card-title">RESTAURATION</div>
+      <div class="results" id="restauration"></div>
+    </div>
+
+    <div class="card site">
+      <div class="card-title">SITE DE MANŒUVRE</div>
+      <div class="results" id="site"></div>
+    </div>
+
+    <div class="card duree">
+      <div class="card-title">DURÉE DE L’EIZ</div>
+      <div class="results" id="duree"></div>
+    </div>
+
+    <div class="card rythme">
+      <div class="card-title">RYTHME DE L’EIZ</div>
+      <div class="results" id="rythme"></div>
+    </div>
+  </div>
+
+  <script>
+    grist.ready({
+      requiredAccess: 'read table'
+    });
+
+    function texte(v) {
+      return String(v || '').trim();
+    }
+
+    function afficherRepartition(records, colonne, elementId) {
+      const valeurs = records
+        .map(r => texte(r[colonne]))
+        .filter(Boolean);
+
+      const element = document.getElementById(elementId);
+
+      if (!valeurs.length) {
+        element.innerHTML =
+          '<div class="empty">Aucune réponse</div>';
+        return;
+      }
+
+      const compte = {};
+
+      valeurs.forEach(v => {
+        compte[v] = (compte[v] || 0) + 1;
+      });
+
+      const total = valeurs.length;
+
+      const lignes = Object.entries(compte)
+        .sort((a, b) => b[1] - a[1])
+        .map(([nom, nb]) => {
+          const pct = Math.round((nb / total) * 100);
+
+          return `
+            <div class="result-row">
+              <span class="label">${nom}</span>
+              <span class="value">${pct} %</span>
+            </div>
+          `;
+        })
+        .join('');
+
+      element.innerHTML = lignes;
+    }
+
+    function noteNumerique(v) {
+      const match = texte(v).match(/[\d,.]+/);
+
+      if (!match) return null;
+
+      const n = parseFloat(match[0].replace(',', '.'));
+
+      return Number.isFinite(n) ? n : null;
+    }
+
+    grist.onRecords(function(records) {
+
+      document.getElementById('nombreRetex').textContent =
+        records.length;
+
+      const notes = records
+        .map(r => noteNumerique(r.Evaluation_générale))
+        .filter(v => v !== null);
+
+      const moyenne = notes.length
+        ? (notes.reduce((a, b) => a + b, 0) / notes.length).toFixed(1)
+        : '0';
+
+      document.getElementById('moyenne').textContent =
+        moyenne;
+
+      afficherRepartition(records, 'Fonction', 'fonction');
+      afficherRepartition(records, 'Organisme', 'organisme');
+      afficherRepartition(records, 'Accueil_sur_site', 'accueil');
+      afficherRepartition(records, 'Restauration', 'restauration');
+      afficherRepartition(records, 'Site_de_manoeuvre', 'site');
+      afficherRepartition(records, 'Durée_EIZ', 'duree');
+      afficherRepartition(records, 'Rythme_EIZ', 'rythme');
+    });
+  </script>
+
+</body>
+</html>
