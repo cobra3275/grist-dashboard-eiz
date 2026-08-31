@@ -224,7 +224,7 @@
 
     <div class="card restauration">
       <div class="card-title">RESTAURATION</div>
-      <div class="results" id="restauration"></div>
+      <div class="satisfaction-chart" id="restauration"></div>
     </div>
 
     <div class="card site">
@@ -420,7 +420,7 @@ records.forEach(r => {
 
 renderBarChart('organisme', organismes);
       renderSatisfaction('accueil', records, 'Accueil_sur_site');    
-      afficherRepartition(records, 'Restauration', 'restauration');
+      renderSatisfaction('restauration', records, 'Restauration');
       afficherRepartition(records, 'Site_de_manoeuvre', 'site');
       afficherRepartition(records, 'Durée_EIZ', 'duree');
       afficherRepartition(records, 'Rythme_EIZ', 'rythme');
