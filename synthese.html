@@ -389,7 +389,7 @@ function renderBarChart(elementId, counts) {
         records.length;
 
       const notes = records
-        .map(r => noteNumerique(r.Evaluation_générale))
+        .map(r => noteNumerique(r.Evaluation_generale))
         .filter(v => v !== null);
 
       const moyenne = notes.length
