@@ -3,11 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard EIZ Cazaux 2026</title>
+  <title>Bilan EIZ Cazaux 2026</title>
+
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #ffffff;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 25px;
+    }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+    }
+
+    .card {
+      flex: 1;
+      border-radius: 22px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .green {
+      background: #e8f7e8;
+    }
+
+    .blue {
+      background: #e8f2ff;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .percent {
+      font-size: 56px;
+      font-weight: bold;
+    }
+
+    .green .percent {
+      color: #188038;
+    }
+
+    .blue .percent {
+      color: #1565c0;
+    }
+  </style>
 </head>
 
 <body>
-  <h1>Dashboard EIZ Cazaux 2026</h1>
-  <p>Widget Grist opérationnel</p>
+
+  <h1>BILAN DES PARTICIPANTS</h1>
+
+  <div class="cards">
+
+    <div class="card green">
+      <div class="title">PARTICIPER À UN PROCHAIN EIZ ?</div>
+      <div class="percent" id="participation">0 %</div>
+    </div>
+
+    <div class="card blue">
+      <div class="title">RECOMMANDERIEZ-VOUS CET EIZ ?</div>
+      <div class="percent" id="recommandation">0 %</div>
+    </div>
+
+  </div>
+
+  <script>
+    grist.ready({
+      requiredAccess: 'read table'
+    });
+
+    grist.onRecords(function(records) {
+
+      const totalParticipation =
+        records.filter(r => r.Participer_prochain_EIZ).length;
+
+      const ouiParticipation =
+        records.filter(
+          r => String(r.Participer_prochain_EIZ).toUpperCase() === 'OUI'
+        ).length;
+
+      const totalRecommandation =
+        records.filter(r => r.Recommander_EIZ).length;
+
+      const ouiRecommandation =
+        records.filter(
+          r => String(r.Recommander_EIZ).toUpperCase() === 'OUI'
+        ).length;
+
+      const tauxParticipation =
+        totalParticipation
+          ? Math.round((ouiParticipation / totalParticipation) * 100)
+          : 0;
+
+      const tauxRecommandation =
+        totalRecommandation
+          ? Math.round((ouiRecommandation / totalRecommandation) * 100)
+          : 0;
+
+      document.getElementById('participation').textContent =
+        tauxParticipation + ' %';
+
+      document.getElementById('recommandation').textContent =
+        tauxRecommandation + ' %';
+    });
+  </script>
+
 </body>
 </html>
