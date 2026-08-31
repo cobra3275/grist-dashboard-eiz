@@ -8,48 +8,116 @@
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 22px;
       background: #ffffff;
     }
 
     h1 {
       text-align: center;
-      font-size: 24px;
-      margin-bottom: 25px;
+      font-size: 26px;
+      margin: 0 0 22px 0;
     }
 
     .cards {
       display: flex;
-      gap: 20px;
+      gap: 18px;
     }
 
     .card {
       flex: 1;
-      border-radius: 22px;
-      padding: 30px;
+      border-radius: 24px;
+      padding: 24px 18px 22px;
       text-align: center;
     }
 
     .green {
-      background: #e8f7e8;
+      background: #e6f5e6;
     }
 
     .blue {
-      background: #e8f2ff;
+      background: #e5f0ff;
     }
 
     .title {
       font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 20px;
+      font-weight: 700;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .chart-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      margin: 8px 0 16px;
+    }
+
+    .donut {
+      width: 145px;
+      height: 145px;
+      border-radius: 50%;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .donut::after {
+      content: "";
+      position: absolute;
+      width: 82px;
+      height: 82px;
+      background: white;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .legend {
+      text-align: left;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .yes {
+      background: #2e7d32;
+    }
+
+    .maybe {
+      background: #f9a825;
+    }
+
+    .no {
+      background: #c62828;
     }
 
     .percent {
-      font-size: 56px;
-      font-weight: bold;
+      font-size: 48px;
+      font-weight: 800;
+      margin-top: 8px;
     }
 
     .green .percent {
@@ -58,6 +126,13 @@
 
     .blue .percent {
       color: #1565c0;
+    }
+
+    .caption {
+      font-size: 13px;
+      margin-top: 2px;
+      font-weight: 600;
+      opacity: 0.8;
     }
   </style>
 </head>
@@ -70,12 +145,53 @@
 
     <div class="card green">
       <div class="title">PARTICIPER À UN PROCHAIN EIZ ?</div>
+
+      <div class="chart-area">
+        <div class="donut" id="donutParticipation"></div>
+
+        <div class="legend">
+          <div class="legend-row">
+            <span class="dot yes"></span>
+            OUI : <strong id="partOui">0 %</strong>
+          </div>
+
+          <div class="legend-row">
+            <span class="dot maybe"></span>
+            PEUT-ÊTRE : <strong id="partPeutEtre">0 %</strong>
+          </div>
+
+          <div class="legend-row">
+            <span class="dot no"></span>
+            NON : <strong id="partNon">0 %</strong>
+          </div>
+        </div>
+      </div>
+
       <div class="percent" id="participation">0 %</div>
+      <div class="caption">TAUX DE PARTICIPATION À UN PROCHAIN EIZ</div>
     </div>
 
     <div class="card blue">
       <div class="title">RECOMMANDERIEZ-VOUS CET EIZ ?</div>
+
+      <div class="chart-area">
+        <div class="donut" id="donutRecommandation"></div>
+
+        <div class="legend">
+          <div class="legend-row">
+            <span class="dot yes"></span>
+            OUI : <strong id="recOui">0 %</strong>
+          </div>
+
+          <div class="legend-row">
+            <span class="dot no"></span>
+            NON : <strong id="recNon">0 %</strong>
+          </div>
+        </div>
+      </div>
+
       <div class="percent" id="recommandation">0 %</div>
+      <div class="caption">TAUX DE RECOMMANDATION DE L’EIZ</div>
     </div>
 
   </div>
@@ -85,39 +201,60 @@
       requiredAccess: 'read table'
     });
 
+    function pourcentage(valeur, total) {
+      return total ? Math.round((valeur / total) * 100) : 0;
+    }
+
     grist.onRecords(function(records) {
 
-      const totalParticipation =
-        records.filter(r => r.Participer_prochain_EIZ).length;
+      const participation = records
+        .map(r => String(r.Participer_prochain_EIZ || '').trim().toUpperCase())
+        .filter(Boolean);
 
-      const ouiParticipation =
-        records.filter(
-          r => String(r.Participer_prochain_EIZ).toUpperCase() === 'OUI'
-        ).length;
+      const partOui = participation.filter(v => v === 'OUI').length;
+      const partNon = participation.filter(v => v === 'NON').length;
+      const partPeutEtre = participation.filter(
+        v => v === 'PEUT-ÊTRE' || v === 'PEUT ETRE'
+      ).length;
 
-      const totalRecommandation =
-        records.filter(r => r.Recommander_EIZ).length;
+      const totalPart = participation.length;
 
-      const ouiRecommandation =
-        records.filter(
-          r => String(r.Recommander_EIZ).toUpperCase() === 'OUI'
-        ).length;
+      const pOui = pourcentage(partOui, totalPart);
+      const pNon = pourcentage(partNon, totalPart);
+      const pPeutEtre = pourcentage(partPeutEtre, totalPart);
 
-      const tauxParticipation =
-        totalParticipation
-          ? Math.round((ouiParticipation / totalParticipation) * 100)
-          : 0;
+      document.getElementById('partOui').textContent = pOui + ' %';
+      document.getElementById('partNon').textContent = pNon + ' %';
+      document.getElementById('partPeutEtre').textContent = pPeutEtre + ' %';
+      document.getElementById('participation').textContent = pOui + ' %';
 
-      const tauxRecommandation =
-        totalRecommandation
-          ? Math.round((ouiRecommandation / totalRecommandation) * 100)
-          : 0;
+      document.getElementById('donutParticipation').style.background =
+        `conic-gradient(
+          #2e7d32 0 ${pOui}%,
+          #f9a825 ${pOui}% ${pOui + pPeutEtre}%,
+          #c62828 ${pOui + pPeutEtre}% 100%
+        )`;
 
-      document.getElementById('participation').textContent =
-        tauxParticipation + ' %';
+      const recommandation = records
+        .map(r => String(r.Recommander_EIZ || '').trim().toUpperCase())
+        .filter(Boolean);
 
-      document.getElementById('recommandation').textContent =
-        tauxRecommandation + ' %';
+      const recOui = recommandation.filter(v => v === 'OUI').length;
+      const recNon = recommandation.filter(v => v === 'NON').length;
+      const totalRec = recommandation.length;
+
+      const rOui = pourcentage(recOui, totalRec);
+      const rNon = pourcentage(recNon, totalRec);
+
+      document.getElementById('recOui').textContent = rOui + ' %';
+      document.getElementById('recNon').textContent = rNon + ' %';
+      document.getElementById('recommandation').textContent = rOui + ' %';
+
+      document.getElementById('donutRecommandation').style.background =
+        `conic-gradient(
+          #2e7d32 0 ${rOui}%,
+          #c62828 ${rOui}% 100%
+        )`;
     });
   </script>
 
