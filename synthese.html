@@ -307,15 +307,14 @@ function renderBarChart(elementId, counts) {
   classe = 'sat-good';
 }
 
-      if (
-        texteNom.includes('INSATISFAIT') ||
-        texteNom.includes('TRÈS INSATISFAIT') ||
-        texteNom.includes('MAUVAIS') ||
-        texteNom === 'NON'
-      ) {
-        classe = 'sat-bad';
-      }
-
+if (
+  texteNom === 'À AMÉLIORER' ||
+  texteNom === 'A AMÉLIORER' ||
+  texteNom === 'NON' ||
+  texteNom === 'TROP SOUTENU'
+) {
+  classe = 'sat-bad';
+}
       return `
         <div class="sat-row">
           <div>
