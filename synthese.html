@@ -185,7 +185,7 @@
 
     <div class="card organismes">
       <div class="card-title">RÉPARTITION SERVICES / ORGANISMES</div>
-      <div class="results" id="organisme"></div>
+      <div class="bar-chart" id="organisme"></div>
     </div>
   </div>
 
@@ -320,7 +320,16 @@ records.forEach(r => {
 });
 
 renderBarChart('fonction', fonctions);
-      afficherRepartition(records, 'Organisme', 'organisme');
+      const organismes = {};
+
+records.forEach(r => {
+  const valeur = texte(r.Organisme);
+  if (valeur) {
+    organismes[valeur] = (organismes[valeur] || 0) + 1;
+  }
+});
+
+renderBarChart('organisme', organismes);
       afficherRepartition(records, 'Accueil_sur_site', 'accueil');
       afficherRepartition(records, 'Restauration', 'restauration');
       afficherRepartition(records, 'Site_de_manoeuvre', 'site');
