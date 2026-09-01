@@ -503,7 +503,7 @@ renderBarChart('recommandationEIZ', recommandationEIZ);
 const apprentissageEIZ = {};
 
 records.forEach(r => {
-  const valeur = texte(r["J'AI APPRIS"]);
+  const valeur = texte(r.J_AI_APPRIS);
   if (valeur) {
     apprentissageEIZ[valeur] = (apprentissageEIZ[valeur] || 0) + 1;
   }
