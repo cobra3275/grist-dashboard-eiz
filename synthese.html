@@ -225,7 +225,60 @@
   font-size: 12px;
   line-height: 1.4;
 }
-    
+   .donut-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.donut {
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut::after {
+  content: "";
+  position: absolute;
+  width: 62px;
+  height: 62px;
+  background: white;
+  border-radius: 50%;
+}
+
+.donut-center {
+  position: relative;
+  z-index: 2;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.donut-legend {
+  font-size: 12px;
+  line-height: 2;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.legend-dot.oui {
+  background: #2e9d50;
+}
+
+.legend-dot.non {
+  background: #d92b2b;
+} 
   </style>
 </head>
 
@@ -312,6 +365,46 @@ function renderBarChart(elementId, counts) {
     el.innerHTML = '<div class="empty">Aucune réponse</div>';
     return;
   }
+function renderDonutChart(elementId, counts) {
+  const el = document.getElementById(elementId);
+  const entries = Object.entries(counts);
+
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty">Aucune réponse</div>';
+    return;
+  }
+
+  const total = entries.reduce((sum, [, nb]) => sum + nb, 0);
+
+  const oui = entries
+    .filter(([nom]) => texte(nom).toUpperCase() === 'OUI')
+    .reduce((sum, [, nb]) => sum + nb, 0);
+
+  const non = entries
+    .filter(([nom]) => texte(nom).toUpperCase() === 'NON')
+    .reduce((sum, [, nb]) => sum + nb, 0);
+
+  const pctOui = Math.round((oui / total) * 100);
+  const pctNon = Math.round((non / total) * 100);
+
+  el.innerHTML = `
+    <div class="donut-wrapper">
+      <div class="donut" style="background:
+        conic-gradient(
+          #2e9d50 0 ${pctOui}%,
+          #d92b2b ${pctOui}% 100%
+        );">
+        <div class="donut-center">${total}</div>
+      </div>
+
+      <div class="donut-legend">
+        <div><span class="legend-dot oui"></span> OUI : ${pctOui}%</div>
+        <div><span class="legend-dot non"></span> NON : ${pctNon}%</div>
+      </div>
+    </div>
+  `;
+}
+  
 
   const max = Math.max(...entries.map(([label, value]) => value));
 
@@ -497,7 +590,7 @@ records.forEach(r => {
   }
 });
 
-renderBarChart('prochainEIZ', prochainEIZ);
+renderDonutChart('prochainEIZ', prochainEIZ);
 const recommandationEIZ = {};
 
 records.forEach(r => {
@@ -507,7 +600,7 @@ records.forEach(r => {
   }
 });
 
-renderBarChart('recommandationEIZ', recommandationEIZ);
+renderDonutChart('recommandationEIZ', recommandationEIZ);
 const apprentissages = records
   .map(r => texte(r.J_AI_APPRIS))
   .filter(Boolean);
