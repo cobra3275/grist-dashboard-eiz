@@ -215,12 +215,12 @@
       const jeuDirige = {};
 
       records.forEach(r => {
-        const v1 = texte(r['Atelier_1_Détection_identification_prélèvement']);
+        const v1 = texte(r['Atelier_1_Detection_identification_prelevement']);
         const v2 = texte(r['Atelier_2_Cellule_analyse_interservice']);
         const v3 = texte(r['Atelier_3_Coordination_interservice']);
         const v4 = texte(r['Atelier_4_Interfaces']);
-        const v5 = texte(r['Atelier_5_Zone_contrôlée']);
-        const v6 = texte(r['Jeu dirigé']);
+        const v5 = texte(r['Atelier_5_Zone_contrôlee']);
+        const v6 = texte(r['Jeu dirige']);
 
         if (v1) atelier1[v1] = (atelier1[v1] || 0) + 1;
         if (v2) atelier2[v2] = (atelier2[v2] || 0) + 1;
