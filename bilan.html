@@ -6,11 +6,218 @@
   <title>BILAN DE L’EIZ – CAZAUX 2026</title>
 
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 12px;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #263238;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 18px;
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .bilan-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      min-height: 390px;
+      border-radius: 20px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .participer {
+      background: #e8f5e9;
+    }
+
+    .recommander {
+      background: #eaf4fc;
+    }
+
+    .card-title {
+      text-align: center;
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .chart {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pie-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .pie {
+      width: 230px;
+      height: 230px;
+      border-radius: 50%;
+    }
+
+    .pie-legend {
+      font-size: 14px;
+      line-height: 2;
+    }
+
+    .pie-dot {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      margin-right: 7px;
+    }
+
+    .empty {
+      color: #78909c;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      .bilan-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
   <h1>BILAN DE L’EIZ – CAZAUX 2026</h1>
+
+  <div class="bilan-grid">
+
+    <div class="card participer">
+      <div class="card-title">
+        SOUHAITEZ-VOUS PARTICIPER À UN PROCHAIN EIZ ?
+      </div>
+      <div class="chart" id="participer"></div>
+    </div>
+
+    <div class="card recommander">
+      <div class="card-title">
+        RECOMMANDERIEZ-VOUS CET EIZ ?
+      </div>
+      <div class="chart" id="recommander"></div>
+    </div>
+
+  </div>
+
+  <script>
+    grist.ready({
+      requiredAccess: 'read table'
+    });
+
+    function texte(v) {
+      return String(v || '').trim();
+    }
+
+    function renderPie(elementId, counts) {
+      const el = document.getElementById(elementId);
+      const entries = Object.entries(counts);
+
+      if (!entries.length) {
+        el.innerHTML = '<div class="empty">Aucune réponse</div>';
+        return;
+      }
+
+      const total = entries.reduce((sum, [, nb]) => sum + nb, 0);
+
+      const couleur = nom => {
+        const t = texte(nom).toUpperCase();
+
+        if (t === 'OUI') return '#2e9d50';
+        if (t === 'NON') return '#d92b2b';
+
+        return '#94a3b8';
+      };
+
+      let depart = 0;
+      const portions = [];
+
+      entries.forEach(([nom, nb]) => {
+        const pct = (nb / total) * 100;
+        const fin = depart + pct;
+
+        portions.push(
+          `${couleur(nom)} ${depart}% ${fin}%`
+        );
+
+        depart = fin;
+      });
+
+      el.innerHTML = `
+        <div class="pie-wrapper">
+
+          <div class="pie"
+               style="background: conic-gradient(${portions.join(',')});">
+          </div>
+
+          <div class="pie-legend">
+            ${entries.map(([nom, nb]) => {
+              const pct = Math.round((nb / total) * 1000) / 10;
+
+              return `
+                <div>
+                  <span class="pie-dot"
+                        style="background:${couleur(nom)}">
+                  </span>
+                  ${nom} : ${pct}%
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+        </div>
+      `;
+    }
+
+    grist.onRecords(function(records) {
+
+      const participer = {};
+      const recommander = {};
+
+      records.forEach(r => {
+
+        const p = texte(r['Participer_prochain_EIZ']);
+        const rec = texte(r['Recommander_EIZ']);
+
+        if (p) {
+          participer[p] = (participer[p] || 0) + 1;
+        }
+
+        if (rec) {
+          recommander[rec] = (recommander[rec] || 0) + 1;
+        }
+
+      });
+
+      renderPie('participer', participer);
+      renderPie('recommander', recommander);
+
+    });
+  </script>
 
 </body>
 </html>
