@@ -365,7 +365,22 @@ function renderBarChart(elementId, counts) {
     el.innerHTML = '<div class="empty">Aucune réponse</div>';
     return;
   }
-function renderDonutChart(elementId, counts) {
+
+  
+
+  const max = Math.max(...entries.map(([label, value]) => value));
+
+  el.innerHTML = entries.map(([label, value]) => `
+    <div class="bar-row">
+      <div class="bar-label">${label}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${(value / max) * 100}%"></div>
+      </div>
+      <div class="bar-value">${value}</div>
+    </div>
+  `).join('');
+}
+  function renderDonutChart(elementId, counts) {
   const el = document.getElementById(elementId);
   const entries = Object.entries(counts);
 
@@ -403,20 +418,6 @@ function renderDonutChart(elementId, counts) {
       </div>
     </div>
   `;
-}
-  
-
-  const max = Math.max(...entries.map(([label, value]) => value));
-
-  el.innerHTML = entries.map(([label, value]) => `
-    <div class="bar-row">
-      <div class="bar-label">${label}</div>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:${(value / max) * 100}%"></div>
-      </div>
-      <div class="bar-value">${value}</div>
-    </div>
-  `).join('');
 }
     function renderSatisfaction(elementId, records, columnName) {
   const el = document.getElementById(elementId);
