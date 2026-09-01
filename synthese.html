@@ -281,7 +281,7 @@
 } 
    
     .pie-wrapper {
-      position: relative;
+      
   display: flex;
   align-items: center;
   justify-content: center;
@@ -295,28 +295,7 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
-.pie-external-labels {
-  position: absolute;
-  width: 85px;
-  height: 85px;
-  left: 195px;
-  top: 0;
-  pointer-events: none;
-}
-.pie-leader-line {
-  position: absolute;
-  height: 1px;
-  background: #64748b;
-  transform-origin: left center;
-  z-index: 1;
-}
-.pie-external-label {
-  position: absolute;
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-  transform: translate(-50%, -50%);
-}
+
 .pie-legend {
   font-size: 11px;
   line-height: 1.8;
@@ -489,7 +468,7 @@ function renderBarChart(elementId, counts) {
     '#ec4899',
     '#84cc16'
   ];
-const afficherEtiquettesExternes = elementId === 'fonction';
+
   let depart = 0;
   const portions = [];
 
@@ -500,48 +479,11 @@ const afficherEtiquettesExternes = elementId === 'fonction';
     depart = fin;
   });
 
- let etiquettesExternes = '';
 
-if (afficherEtiquettesExternes) {
-  let angleDepart = 0;
-
-  etiquettesExternes = entries.map(([nom, nb]) => {
-    const pct = (nb / total) * 100;
-    const angleMilieu = angleDepart + (pct * 3.6) / 2;
-    const rad = (angleMilieu - 90) * Math.PI / 180;
-
-    const x = 50 + Math.cos(rad) * 78;
-    const y = 50 + Math.sin(rad) * 78;
-const xTrait = 50 + Math.cos(rad) * 52;
-const yTrait = 50 + Math.sin(rad) * 52;
-const longueurTrait = 16;
-const rotationTrait = angleMilieu - 90;
-    angleDepart += pct * 3.6;
-
-    return `
-    <span class="pie-leader-line"
-      style="
-        left:${xTrait}%;
-        top:${yTrait}%;
-        width:${longueurTrait}px;
-        transform:rotate(${rotationTrait}deg);
-      ">
-</span>
-      <span class="pie-external-label"
-            style="left:${x}%; top:${y}%;">
-        ${Math.round(pct * 10) / 10}%
-      </span>
-    `;
-  }).join('');
-}
       el.innerHTML = `
     <div class="pie-wrapper">
       <div class="pie" style="background: conic-gradient(${portions.join(',')});"></div>
-      ${afficherEtiquettesExternes ? `
-  <div class="pie-external-labels">
-    ${etiquettesExternes}
-  </div>
-` : ''}
+      
       <div class="pie-legend">
         ${entries.map(([nom, nb], index) => {
           const pct = Math.round((nb / total) * 1000) / 10;
