@@ -367,17 +367,9 @@
   </div>
 <div class="questions-row">
 
-  <div class="question-card">
-    <div class="card-title">SOUHAITEZ-VOUS PARTICIPER À UN PROCHAIN EIZ ?</div>
-    <div id="prochainEIZ"></div>
-  </div>
+ 
 
-  <div class="question-card">
-    <div class="card-title">RECOMMANDERIEZ-VOUS CET EIZ ?</div>
-    <div id="recommandationEIZ"></div>
-  </div>
-
-  
+   
 
 </div>
 
@@ -733,26 +725,7 @@ renderPieChart('organisme', organismes);
       renderSatisfactionPie('duree', records, 'Duree_EIZ');
       renderSatisfactionPie('rythme', records, 'Rythme_EIZ');
 
-    const prochainEIZ = {};
-
-records.forEach(r => {
-  const valeur = texte(r.Participer_prochain_EIZ);
-  if (valeur) {
-    prochainEIZ[valeur] = (prochainEIZ[valeur] || 0) + 1;
-  }
-});
-
-renderDonutChart('prochainEIZ', prochainEIZ);
-const recommandationEIZ = {};
-
-records.forEach(r => {
-  const valeur = texte(r.Recommander_EIZ);
-  if (valeur) {
-    recommandationEIZ[valeur] = (recommandationEIZ[valeur] || 0) + 1;
-  }
-});
-
-renderDonutChart('recommandationEIZ', recommandationEIZ);
+ 
 
 
       
