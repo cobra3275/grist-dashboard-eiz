@@ -185,6 +185,39 @@
       margin-top: 8px;
       font-size: 12px;
     }
+.questions-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.question-card {
+  min-height: 180px;
+  border-radius: 18px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.question-card:nth-child(1) {
+  background: #e8f5e9;
+}
+
+.question-card:nth-child(2) {
+  background: #eaf4fc;
+}
+
+.question-card:nth-child(3) {
+  background: #fff4d9;
+}
+
+.question-card .card-title {
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+    
   </style>
 </head>
 
@@ -242,7 +275,26 @@
       <div class="results" id="rythme"></div>
     </div>
   </div>
+<div class="questions-row">
 
+  <div class="question-card">
+    <div class="card-title">SOUHAITEZ-VOUS PARTICIPER À UN PROCHAIN EIZ ?</div>
+    <div id="prochainEIZ"></div>
+  </div>
+
+  <div class="question-card">
+    <div class="card-title">RECOMMANDERIEZ-VOUS CET EIZ ?</div>
+    <div id="recommandationEIZ"></div>
+  </div>
+
+  <div class="question-card">
+    <div class="card-title">AVEZ-VOUS APPRIS DE NOUVELLES CHOSES LORS DE CET EIZ ?</div>
+    <div id="apprentissageEIZ"></div>
+  </div>
+
+</div>
+
+  
   <script>
 function renderBarChart(elementId, counts) {
   const el = document.getElementById(elementId);
@@ -427,6 +479,39 @@ renderBarChart('organisme', organismes);
       renderSatisfaction('site', records, 'Site_de_manoeuvre');
       renderSatisfaction('duree', records, 'Duree_EIZ');
       renderSatisfaction('rythme', records, 'Rythme_EIZ');
+
+    const prochainEIZ = {};
+
+records.forEach(r => {
+  const valeur = texte(r.Participer_prochain_EIZ);
+  if (valeur) {
+    prochainEIZ[valeur] = (prochainEIZ[valeur] || 0) + 1;
+  }
+});
+
+renderBarChart('prochainEIZ', prochainEIZ);
+const recommandationEIZ = {};
+
+records.forEach(r => {
+  const valeur = texte(r.Recommander_EIZ);
+  if (valeur) {
+    recommandationEIZ[valeur] = (recommandationEIZ[valeur] || 0) + 1;
+  }
+});
+
+renderBarChart('recommandationEIZ', recommandationEIZ);
+const apprentissageEIZ = {};
+
+records.forEach(r => {
+  const valeur = texte(r.Appris_nouvelles_choses);
+  if (valeur) {
+    apprentissageEIZ[valeur] = (apprentissageEIZ[valeur] || 0) + 1;
+  }
+});
+
+renderBarChart('apprentissageEIZ', apprentissageEIZ);
+      
+      
     });
   </script>
 
