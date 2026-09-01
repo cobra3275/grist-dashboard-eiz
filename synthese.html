@@ -297,13 +297,19 @@
 }
 .pie-external-labels {
   position: absolute;
-  top: -18px;
+  width: 85px;
+  height: 85px;
   left: 0;
-  width: 100%;
-  text-align: center;
+  top: 0;
+  pointer-events: none;
+}
+
+.pie-external-label {
+  position: absolute;
   font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
+  transform: translate(-50%, -50%);
 }
 .pie-legend {
   font-size: 11px;
@@ -488,7 +494,7 @@ const afficherEtiquettesExternes = elementId === 'fonction';
     depart = fin;
   });
 
-  let etiquettesExternes = '';
+ let etiquettesExternes = '';
 
 if (afficherEtiquettesExternes) {
   let angleDepart = 0;
@@ -496,10 +502,20 @@ if (afficherEtiquettesExternes) {
   etiquettesExternes = entries.map(([nom, nb]) => {
     const pct = (nb / total) * 100;
     const angleMilieu = angleDepart + (pct * 3.6) / 2;
+    const rad = (angleMilieu - 90) * Math.PI / 180;
+
+    const x = 50 + Math.cos(rad) * 68;
+    const y = 50 + Math.sin(rad) * 68;
+
     angleDepart += pct * 3.6;
 
-    return `${Math.round(pct * 10) / 10}%`;
-  }).join(' · ');
+    return `
+      <span class="pie-external-label"
+            style="left:${x}%; top:${y}%;">
+        ${Math.round(pct * 10) / 10}%
+      </span>
+    `;
+  }).join('');
 }
       el.innerHTML = `
     <div class="pie-wrapper">
