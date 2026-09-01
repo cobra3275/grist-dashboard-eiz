@@ -396,8 +396,8 @@ function renderBarChart(elementId, counts) {
     .filter(([nom]) => texte(nom).toUpperCase() === 'NON')
     .reduce((sum, [, nb]) => sum + nb, 0);
 
-  const pctOui = Math.round((oui / total) * 100);
-  const pctNon = Math.round((non / total) * 100);
+  const pctOui = Math.round((oui / total) * 1000) / 10;
+  const pctNon = Math.round((non / total) * 1000) / 10;
 
   el.innerHTML = `
     <div class="donut-wrapper">
@@ -440,7 +440,7 @@ function renderBarChart(elementId, counts) {
     .sort((a, b) => b[1] - a[1])
     .map(([nom, nb]) => {
 
-      const pct = Math.round((nb / total) * 100);
+      const pct = Math.round((nb / total) * 1000) / 10;
 
       let classe = 'sat-medium';
 
