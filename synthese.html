@@ -279,28 +279,7 @@
 .legend-dot.non {
   background: #d92b2b;
 } 
-    .pie-container {
-  position: relative;
-  width: 125px;
-  height: 125px;
-  flex-shrink: 0;
-}
-
-.pie-container .pie {
-  position: absolute;
-  width: 85px;
-  height: 85px;
-  left: 20px;
-  top: 20px;
-}
-
-.pie-pct {
-  position: absolute;
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-  z-index: 2;
-}
+   
     .pie-wrapper {
   display: flex;
   align-items: center;
@@ -498,29 +477,7 @@ function renderBarChart(elementId, counts) {
     portions.push(`${couleurs[index % couleurs.length]} ${depart}% ${fin}%`);
     depart = fin;
   });
-const etiquettes = [];
-let angleDepart = 0;
 
-entries.forEach(([nom, nb], index) => {
-  const pct = (nb / total) * 100;
-  const angle = angleDepart + (pct * 3.6) / 2;
-  const rad = (angle - 90) * Math.PI / 180;
-
-  const x1 = 50 + Math.cos(rad) * 40;
-  const y1 = 50 + Math.sin(rad) * 40;
-
-  const x2 = 50 + Math.cos(rad) * 55;
-  const y2 = 50 + Math.sin(rad) * 55;
-
-  etiquettes.push({
-    pct: Math.round(pct * 10) / 10,
-    couleur: couleurs[index % couleurs.length],
-    x1, y1, x2, y2,
-    droite: Math.cos(rad) >= 0
-  });
-
-  angleDepart += pct * 3.6;
-});
   
       el.innerHTML = `
     <div class="pie-wrapper">
@@ -659,21 +616,7 @@ if (
 
   el.innerHTML = `
     <div class="pie-wrapper">
-      <div class="pie-container">
-  <div class="pie" style="background: conic-gradient(${portions.join(',')});"></div>
-
-  ${etiquettes.map(e => `
-    <div class="pie-pct"
-         style="
-           left:${e.x2}%;
-           top:${e.y2}%;
-           color:${e.couleur};
-           transform:translate(-50%,-50%);
-         ">
-      ${e.pct}%
-    </div>
-  `).join('')}
-</div>
+     <div class="pie" style="background: conic-gradient(${portions.join(',')});"></div>
 
       <div class="pie-legend">
         ${entries.map(([nom, nb], index) => {
