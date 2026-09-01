@@ -279,6 +279,33 @@
 .legend-dot.non {
   background: #d92b2b;
 } 
+    .pie-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 10px;
+}
+
+.pie {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pie-legend {
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.pie-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
   </style>
 </head>
 
@@ -385,6 +412,56 @@ function renderBarChart(elementId, counts) {
     el.innerHTML = '<div class="empty">Aucune réponse</div>';
     return;
   }
+function renderPieChart(elementId, counts) {
+  const el = document.getElementById(elementId);
+  const entries = Object.entries(counts);
+
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty">Aucune réponse</div>';
+    return;
+  }
+
+  const total = entries.reduce((sum, [, nb]) => sum + nb, 0);
+
+  const couleurs = [
+    '#7c3aed',
+    '#3b82f6',
+    '#22c55e',
+    '#f59e0b',
+    '#ef4444',
+    '#06b6d4',
+    '#ec4899',
+    '#84cc16'
+  ];
+
+  let depart = 0;
+  const portions = [];
+
+  entries.forEach(([nom, nb], index) => {
+    const pct = (nb / total) * 100;
+    const fin = depart + pct;
+    portions.push(`${couleurs[index % couleurs.length]} ${depart}% ${fin}%`);
+    depart = fin;
+  });
+
+  el.innerHTML = `
+    <div class="pie-wrapper">
+      <div class="pie" style="background: conic-gradient(${portions.join(',')});"></div>
+      <div class="pie-legend">
+        ${entries.map(([nom, nb], index) => {
+          const pct = Math.round((nb / total) * 1000) / 10;
+          return `
+            <div>
+              <span class="pie-dot" style="background:${couleurs[index % couleurs.length]}"></span>
+              ${nom} : ${pct}%
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+    
 
   const total = entries.reduce((sum, [, nb]) => sum + nb, 0);
 
@@ -562,7 +639,7 @@ records.forEach(r => {
   }
 });
 
-renderBarChart('fonction', fonctions);
+renderPieChart('fonction', fonctions);
       const organismes = {};
 
 records.forEach(r => {
