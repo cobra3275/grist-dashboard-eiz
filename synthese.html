@@ -559,6 +559,78 @@ if (
 
   el.innerHTML = lignes;
 }
+    function renderSatisfactionPie(elementId, records, columnName) {
+  const el = document.getElementById(elementId);
+
+  const valeurs = records
+    .map(r => texte(r[columnName]))
+    .filter(Boolean);
+
+  if (!valeurs.length) {
+    el.innerHTML = '<div class="empty">Aucune réponse</div>';
+    return;
+  }
+
+  const compte = {};
+
+  valeurs.forEach(v => {
+    compte[v] = (compte[v] || 0) + 1;
+  });
+
+  const total = valeurs.length;
+  const entries = Object.entries(compte);
+
+  const couleurs = entries.map(([nom]) => {
+    const texteNom = nom.toUpperCase();
+
+    if (
+      texteNom === 'EXCELLENT' ||
+      texteNom === 'ADAPTÉ' ||
+      texteNom === 'ADAPTÉE'
+    ) {
+      return '#2e9d50';
+    }
+
+    if (
+      texteNom === 'BON' ||
+      texteNom === 'TROP COURTE' ||
+      texteNom === 'TROP LENT'
+    ) {
+      return '#f59e0b';
+    }
+
+    return '#d92b2b';
+  });
+
+  let depart = 0;
+  const portions = [];
+
+  entries.forEach(([, nb], index) => {
+    const pct = (nb / total) * 100;
+    const fin = depart + pct;
+    portions.push(`${couleurs[index]} ${depart}% ${fin}%`);
+    depart = fin;
+  });
+
+  el.innerHTML = `
+    <div class="pie-wrapper">
+      <div class="pie" style="background: conic-gradient(${portions.join(',')});"></div>
+
+      <div class="pie-legend">
+        ${entries.map(([nom, nb], index) => {
+          const pct = Math.round((nb / total) * 1000) / 10;
+
+          return `
+            <div>
+              <span class="pie-dot" style="background:${couleurs[index]}"></span>
+              ${nom} : ${pct}%
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
     grist.ready({
       requiredAccess: 'read table'
     });
@@ -651,7 +723,7 @@ records.forEach(r => {
 });
 
 renderPieChart('organisme', organismes);
-      renderSatisfaction('accueil', records, 'Accueil_sur_site');    
+      renderSatisfactionPie('accueil', records, 'Accueil_sur_site');   
       renderSatisfaction('restauration', records, 'Restauration');
       renderSatisfaction('site', records, 'Site_de_manoeuvre');
       renderSatisfaction('duree', records, 'Duree_EIZ');
