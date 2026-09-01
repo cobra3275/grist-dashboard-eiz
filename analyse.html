@@ -6,11 +6,156 @@
   <title>ANALYSE QUALITATIVE – EIZ CAZAUX 2026</title>
 
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 12px;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #263238;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 18px;
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .analyse-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      min-height: 330px;
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .points-forts { background: #e8f5e9; }
+    .difficultes { background: #fdecec; }
+    .ameliorations { background: #fff4dc; }
+    .appris { background: #eaf4fc; }
+
+    .card-title {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .reponses {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .reponse {
+      background: rgba(255,255,255,0.8);
+      border-radius: 10px;
+      padding: 9px 11px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .empty {
+      text-align: center;
+      color: #78909c;
+      margin-top: 30px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 750px) {
+      .analyse-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
   <h1>ANALYSE QUALITATIVE – EIZ CAZAUX 2026</h1>
+
+  <div class="analyse-grid">
+
+    <div class="card points-forts">
+      <div class="card-title">POINTS FORTS</div>
+      <div class="reponses" id="pointsForts"></div>
+    </div>
+
+    <div class="card difficultes">
+      <div class="card-title">DIFFICULTÉS RENCONTRÉES</div>
+      <div class="reponses" id="difficultes"></div>
+    </div>
+
+    <div class="card ameliorations">
+      <div class="card-title">PROPOSITIONS D’AMÉLIORATION</div>
+      <div class="reponses" id="ameliorations"></div>
+    </div>
+
+    <div class="card appris">
+      <div class="card-title">J’AI APPRIS</div>
+      <div class="reponses" id="appris"></div>
+    </div>
+
+  </div>
+
+  <script>
+    grist.ready({
+      requiredAccess: 'read table'
+    });
+
+    function texte(v) {
+      return String(v || '').trim();
+    }
+
+    function afficherReponses(elementId, valeurs) {
+      const el = document.getElementById(elementId);
+
+      const reponses = valeurs
+        .map(texte)
+        .filter(Boolean);
+
+      if (!reponses.length) {
+        el.innerHTML = '<div class="empty">Aucune réponse</div>';
+        return;
+      }
+
+      el.innerHTML = reponses
+        .map(v => `<div class="reponse">${v}</div>`)
+        .join('');
+    }
+
+    grist.onRecords(function(records) {
+
+      afficherReponses(
+        'pointsForts',
+        records.map(r => r['POINTS_FORTS'])
+      );
+
+      afficherReponses(
+        'difficultes',
+        records.map(r => r['DIFFICULTES_RENCONTREES'])
+      );
+
+      afficherReponses(
+        'ameliorations',
+        records.map(r => r['PROPOSITIONS_D_AMELIORATION'])
+      );
+
+      afficherReponses(
+        'appris',
+        records.map(r => r['J_AI_APPRIS'])
+      );
+
+    });
+  </script>
 
 </body>
 </html>
