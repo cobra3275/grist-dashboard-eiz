@@ -412,7 +412,40 @@ function renderBarChart(elementId, counts) {
     el.innerHTML = '<div class="empty">Aucune réponse</div>';
     return;
   }
-function renderPieChart(elementId, counts) {
+
+    
+
+  const total = entries.reduce((sum, [, nb]) => sum + nb, 0);
+
+  const oui = entries
+    .filter(([nom]) => texte(nom).toUpperCase() === 'OUI')
+    .reduce((sum, [, nb]) => sum + nb, 0);
+
+  const non = entries
+    .filter(([nom]) => texte(nom).toUpperCase() === 'NON')
+    .reduce((sum, [, nb]) => sum + nb, 0);
+
+  const pctOui = Math.round((oui / total) * 1000) / 10;
+  const pctNon = Math.round((non / total) * 1000) / 10;
+
+  el.innerHTML = `
+    <div class="donut-wrapper">
+      <div class="donut" style="background:
+        conic-gradient(
+          #2e9d50 0 ${pctOui}%,
+          #d92b2b ${pctOui}% 100%
+        );">
+        <div class="donut-center">${total}</div>
+      </div>
+
+      <div class="donut-legend">
+        <div><span class="legend-dot oui"></span> OUI : ${pctOui}%</div>
+        <div><span class="legend-dot non"></span> NON : ${pctNon}%</div>
+      </div>
+    </div>
+  `;
+}
+    function renderPieChart(elementId, counts) {
   const el = document.getElementById(elementId);
   const entries = Object.entries(counts);
 
@@ -457,38 +490,6 @@ function renderPieChart(elementId, counts) {
             </div>
           `;
         }).join('')}
-      </div>
-    </div>
-  `;
-}
-    
-
-  const total = entries.reduce((sum, [, nb]) => sum + nb, 0);
-
-  const oui = entries
-    .filter(([nom]) => texte(nom).toUpperCase() === 'OUI')
-    .reduce((sum, [, nb]) => sum + nb, 0);
-
-  const non = entries
-    .filter(([nom]) => texte(nom).toUpperCase() === 'NON')
-    .reduce((sum, [, nb]) => sum + nb, 0);
-
-  const pctOui = Math.round((oui / total) * 1000) / 10;
-  const pctNon = Math.round((non / total) * 1000) / 10;
-
-  el.innerHTML = `
-    <div class="donut-wrapper">
-      <div class="donut" style="background:
-        conic-gradient(
-          #2e9d50 0 ${pctOui}%,
-          #d92b2b ${pctOui}% 100%
-        );">
-        <div class="donut-center">${total}</div>
-      </div>
-
-      <div class="donut-legend">
-        <div><span class="legend-dot oui"></span> OUI : ${pctOui}%</div>
-        <div><span class="legend-dot non"></span> NON : ${pctNon}%</div>
       </div>
     </div>
   `;
