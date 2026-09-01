@@ -187,7 +187,7 @@
     }
 .questions-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   margin-top: 8px;
 }
@@ -348,10 +348,7 @@
     <div id="recommandationEIZ"></div>
   </div>
 
-  <div class="question-card">
-    <div class="card-title">J'AI APPRIS</div>
-    <div id="apprentissageEIZ"></div>
-  </div>
+  
 
 </div>
 
@@ -602,18 +599,7 @@ records.forEach(r => {
 });
 
 renderDonutChart('recommandationEIZ', recommandationEIZ);
-const apprentissages = records
-  .map(r => texte(r.J_AI_APPRIS))
-  .filter(Boolean);
 
-const blocApprentissage = document.getElementById('apprentissageEIZ');
-
-if (apprentissages.length) {
-  blocApprentissage.innerHTML = apprentissages
-    .map(v => `<div class="reponse-libre">• ${v}</div>`)
-    .join('');
-} else {
-  blocApprentissage.innerHTML = '<div class="empty">Aucune réponse</div>';
 }
       
       
