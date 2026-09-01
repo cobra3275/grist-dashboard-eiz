@@ -294,7 +294,16 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
-
+.pie-external-labels {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
 .pie-legend {
   font-size: 11px;
   line-height: 1.8;
@@ -467,7 +476,7 @@ function renderBarChart(elementId, counts) {
     '#ec4899',
     '#84cc16'
   ];
-
+const afficherEtiquettesExternes = elementId === 'fonction';
   let depart = 0;
   const portions = [];
 
@@ -478,10 +487,27 @@ function renderBarChart(elementId, counts) {
     depart = fin;
   });
 
-  
+  let etiquettesExternes = '';
+
+if (afficherEtiquettesExternes) {
+  let angleDepart = 0;
+
+  etiquettesExternes = entries.map(([nom, nb]) => {
+    const pct = (nb / total) * 100;
+    const angleMilieu = angleDepart + (pct * 3.6) / 2;
+    angleDepart += pct * 3.6;
+
+    return `${Math.round(pct * 10) / 10}%`;
+  }).join(' · ');
+}
       el.innerHTML = `
     <div class="pie-wrapper">
       <div class="pie" style="background: conic-gradient(${portions.join(',')});"></div>
+      ${afficherEtiquettesExternes ? `
+  <div class="pie-external-labels">
+    ${etiquettesExternes}
+  </div>
+` : ''}
       <div class="pie-legend">
         ${entries.map(([nom, nb], index) => {
           const pct = Math.round((nb / total) * 1000) / 10;
