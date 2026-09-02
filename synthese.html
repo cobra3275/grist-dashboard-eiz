@@ -331,6 +331,10 @@ gap: 12px;
       <div class="kpi-title">SENTIMENT GÉNÉRAL / 5</div>
       <div class="kpi-value" id="moyenne">0</div>
     </div>
+    <div class="kpi interservices">
+  <div class="kpi-title">COMPRÉHENSION INTERSERVICES / 5</div>
+  <div class="kpi-value" id="moyenneInterservices">0</div>
+</div>
   </div>
 
   <div class="top-grid">
@@ -705,6 +709,15 @@ if (
       document.getElementById('moyenne').textContent =
         moyenne;
 
+      const notesInterservices = records
+  .map(r => noteNumerique(r.Comprehension_interservices))
+  .filter(v => v !== null);
+
+const moyenneInterservices = notesInterservices.length
+  ? (notesInterservices.reduce((a, b) => a + b, 0) / notesInterservices.length).toFixed(1)
+  : '0';
+document.getElementById('moyenneInterservices').textContent =
+  moyenneInterservices;
       const fonctions = {};
 
 records.forEach(r => {
