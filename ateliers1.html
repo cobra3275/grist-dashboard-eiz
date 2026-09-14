@@ -65,7 +65,13 @@
       font-weight: 800;
       margin-bottom: 8px;
     }
-
+.atelier-subtitle {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.3;
+}
     .atelier-chart {
       width: 100%;
       flex: 1;
@@ -139,18 +145,25 @@
   <div class="ateliers-grid">
 
     <div class="card">
-      <div class="card-title">ATELIER 1</div>
+    <div class="card-title">
+  ATELIER 1<br>
+  <span class="atelier-subtitle">Détection – Identification – Prélèvement</span>
+</div>
       <div class="atelier-chart" id="atelier1"></div>
     </div>
 
     <div class="card">
-      <div class="card-title">ATELIER 2</div>
-      <div class="atelier-chart" id="atelier2"></div>
+<div class="card-title">
+  ATELIER 2<br>
+  <span class="atelier-subtitle">Cellule analyse Interservices</span>
+</div>      <div class="atelier-chart" id="atelier2"></div>
     </div>
 
     <div class="card">
-      <div class="card-title">ATELIER 3</div>
-      <div class="atelier-chart" id="atelier3"></div>
+<div class="card-title">
+  ATELIER 3<br>
+  <span class="atelier-subtitle">Coordination interservices</span>
+</div>      <div class="atelier-chart" id="atelier3"></div>
     </div>
 
   </div>
