@@ -3,10 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ÉVALUATION DES ATELIERS – EIZ CAZAUX 2026</title>
+
+  <title>ÉVALUATION DES ATELIERS 1 – EIZ CAZAUX 2026</title>
+
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 10px;
@@ -14,12 +20,14 @@
       background: #ffffff;
       color: #263238;
     }
+
     h1 {
       text-align: center;
       margin: 0 0 12px;
       font-size: 26px;
       font-weight: 800;
     }
+
     .ateliers-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -27,9 +35,10 @@
       width: 100%;
       min-height: calc(100vh - 90px);
     }
+
     .card {
       height: 100%;
-min-height: 0;
+      min-height: 0;
       border-radius: 18px;
       padding: 14px;
       display: flex;
@@ -37,18 +46,26 @@ min-height: 0;
       align-items: center;
       justify-content: flex-start;
     }
-    .card:nth-child(1) { background: #f3e9ff; }
-    .card:nth-child(2) { background: #e5f2ff; }
-    .card:nth-child(3) { background: #e7f6e9; }
-    .card:nth-child(4) { background: #fff4dc; }
-    .card:nth-child(5) { background: #e8f4f4; }
-    .card:nth-child(6) { background: #f7e9f1; }
+
+    .card:nth-child(1) {
+      background: #f3e9ff;
+    }
+
+    .card:nth-child(2) {
+      background: #e5f2ff;
+    }
+
+    .card:nth-child(3) {
+      background: #e7f6e9;
+    }
+
     .card-title {
       text-align: center;
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 800;
       margin-bottom: 8px;
     }
+
     .atelier-chart {
       width: 100%;
       flex: 1;
@@ -56,51 +73,71 @@ min-height: 0;
       align-items: center;
       justify-content: center;
     }
+
     .pie-wrapper {
       width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 18px;
     }
+
     .pie {
-      width: 240px;
-      height: 240px;
+      width: 300px;
+      height: 300px;
+      max-width: 90%;
+      aspect-ratio: 1 / 1;
       border-radius: 50%;
       flex-shrink: 0;
     }
+
     .pie-legend {
-      font-size: 12px;
-      line-height: 1.9;
+      font-size: 14px;
+      line-height: 2;
       text-align: left;
     }
+
     .pie-dot {
       display: inline-block;
-      width: 10px;
-      height: 10px;
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
       margin-right: 7px;
     }
+
     .empty {
       text-align: center;
       color: #78909c;
-      font-size: 13px;
+      font-size: 14px;
       margin-top: 20px;
     }
+
     @media (max-width: 900px) {
-      .ateliers-grid { grid-template-columns: repeat(2, 1fr); }
+      .ateliers-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .pie {
+        width: 240px;
+        height: 240px;
+      }
     }
+
     @media (max-width: 600px) {
-      .ateliers-grid { grid-template-columns: 1fr; }
+      .ateliers-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
 
-  <h1>ÉVALUATION DES ATELIERS – EIZ CAZAUX 2026</h1>
+  <h1>ÉVALUATION DES ATELIERS 1 – EIZ CAZAUX 2026</h1>
 
   <div class="ateliers-grid">
+
     <div class="card">
       <div class="card-title">ATELIER 1</div>
       <div class="atelier-chart" id="atelier1"></div>
@@ -116,43 +153,38 @@ min-height: 0;
       <div class="atelier-chart" id="atelier3"></div>
     </div>
 
-    <div class="card">
-      <div class="card-title">ATELIER 4</div>
-      <div class="atelier-chart" id="atelier4"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">ATELIER 5</div>
-      <div class="atelier-chart" id="atelier5"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">JEU DIRIGÉ</div>
-      <div class="atelier-chart" id="jeuDirige"></div>
-    </div>
   </div>
 
   <script>
-    grist.ready({ requiredAccess: 'read table' });
+
+    grist.ready({
+      requiredAccess: 'read table'
+    });
 
     function texte(v) {
       return String(v || '').trim();
     }
 
     function couleurReponse(nom, index) {
+
       const t = texte(nom).toUpperCase();
 
-      if (t === 'OUI') return '#2e9d50';
-      if (t === 'NON') return '#d92b2b';
+      if (t === 'OUI') {
+        return '#2e9d50';
+      }
 
-     if (
-  t.includes("JE N'Y AI PAS PARTICIPÉ") ||
-  t.includes("JE N’Y AI PAS PARTICIPÉ") ||
-  t.includes("JE N'Y AI PAS PARTICIPE") ||
-  t.includes("JE N’Y AI PAS PARTICIPE")
-) {
-  return '#94a3b8';
-}
+      if (t === 'NON') {
+        return '#d92b2b';
+      }
+
+      if (
+        t.includes("JE N'Y AI PAS PARTICIPÉ") ||
+        t.includes("JE N’Y AI PAS PARTICIPÉ") ||
+        t.includes("JE N'Y AI PAS PARTICIPE") ||
+        t.includes("JE N’Y AI PAS PARTICIPE")
+      ) {
+        return '#94a3b8';
+      }
 
       const couleurs = [
         '#7c3aed',
@@ -168,77 +200,161 @@ min-height: 0;
       return couleurs[index % couleurs.length];
     }
 
+
     function renderAtelierPie(elementId, counts) {
+
       const el = document.getElementById(elementId);
+
       const entries = Object.entries(counts);
 
       if (!entries.length) {
-        el.innerHTML = '<div class="empty">Aucune réponse</div>';
+        el.innerHTML =
+          '<div class="empty">Aucune réponse</div>';
         return;
       }
 
-      const total = entries.reduce((sum, [, nb]) => sum + nb, 0);
+      const total = entries.reduce(
+        (sum, [, nb]) => sum + nb,
+        0
+      );
+
       let depart = 0;
+
       const portions = [];
 
       entries.forEach(([nom, nb], index) => {
+
         const pct = (nb / total) * 100;
+
         const fin = depart + pct;
-        const couleur = couleurReponse(nom, index);
-        portions.push(`${couleur} ${depart}% ${fin}%`);
+
+        const couleur =
+          couleurReponse(nom, index);
+
+        portions.push(
+          `${couleur} ${depart}% ${fin}%`
+        );
+
         depart = fin;
       });
 
+
       el.innerHTML = `
         <div class="pie-wrapper">
-          <div class="pie" style="background: conic-gradient(${portions.join(',')});"></div>
-          <div class="pie-legend">
-            ${entries.map(([nom, nb], index) => {
-              const pct = Math.round((nb / total) * 1000) / 10;
-              const couleur = couleurReponse(nom, index);
-              return `
-                <div>
-                  <span class="pie-dot" style="background:${couleur}"></span>
-                  ${nom} : ${pct}%
-                </div>
-              `;
-            }).join('')}
+
+          <div
+            class="pie"
+            style="
+              background:
+              conic-gradient(
+                ${portions.join(',')}
+              );
+            ">
           </div>
+
+          <div class="pie-legend">
+
+            ${entries.map(
+              ([nom, nb], index) => {
+
+                const pct =
+                  Math.round(
+                    (nb / total) * 1000
+                  ) / 10;
+
+                const couleur =
+                  couleurReponse(
+                    nom,
+                    index
+                  );
+
+                return `
+                  <div>
+
+                    <span
+                      class="pie-dot"
+                      style="
+                        background:
+                        ${couleur}
+                      ">
+                    </span>
+
+                    ${nom} : ${pct}%
+
+                  </div>
+                `;
+              }
+            ).join('')}
+
+          </div>
+
         </div>
       `;
     }
 
+
     grist.onRecords(function(records) {
+
       const atelier1 = {};
       const atelier2 = {};
       const atelier3 = {};
-      const atelier4 = {};
-      const atelier5 = {};
-      const jeuDirige = {};
 
       records.forEach(r => {
-        const v1 = texte(r['Atelier_1_Detection_identification_prelevement']);
-        const v2 = texte(r['Atelier_2_Cellule_analyse_interservice']);
-        const v3 = texte(r['Atelier_3_Coordination_interservice']);
-        const v4 = texte(r['Atelier_4_Interfaces']);
-        const v5 = texte(r['Atelier_5_Zone_controlee']);
-        const v6 = texte(r['Jeu_dirige']);
 
-        if (v1) atelier1[v1] = (atelier1[v1] || 0) + 1;
-        if (v2) atelier2[v2] = (atelier2[v2] || 0) + 1;
-        if (v3) atelier3[v3] = (atelier3[v3] || 0) + 1;
-        if (v4) atelier4[v4] = (atelier4[v4] || 0) + 1;
-        if (v5) atelier5[v5] = (atelier5[v5] || 0) + 1;
-        if (v6) jeuDirige[v6] = (jeuDirige[v6] || 0) + 1;
+        const v1 = texte(
+          r[
+            'Atelier_1_Detection_identification_prelevement'
+          ]
+        );
+
+        const v2 = texte(
+          r[
+            'Atelier_2_Cellule_analyse_interservice'
+          ]
+        );
+
+        const v3 = texte(
+          r[
+            'Atelier_3_Coordination_interservice'
+          ]
+        );
+
+
+        if (v1) {
+          atelier1[v1] =
+            (atelier1[v1] || 0) + 1;
+        }
+
+        if (v2) {
+          atelier2[v2] =
+            (atelier2[v2] || 0) + 1;
+        }
+
+        if (v3) {
+          atelier3[v3] =
+            (atelier3[v3] || 0) + 1;
+        }
+
       });
 
-      renderAtelierPie('atelier1', atelier1);
-      renderAtelierPie('atelier2', atelier2);
-      renderAtelierPie('atelier3', atelier3);
-      renderAtelierPie('atelier4', atelier4);
-      renderAtelierPie('atelier5', atelier5);
-      renderAtelierPie('jeuDirige', jeuDirige);
+
+      renderAtelierPie(
+        'atelier1',
+        atelier1
+      );
+
+      renderAtelierPie(
+        'atelier2',
+        atelier2
+      );
+
+      renderAtelierPie(
+        'atelier3',
+        atelier3
+      );
+
     });
+
   </script>
 
 </body>
