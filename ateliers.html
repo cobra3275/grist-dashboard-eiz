@@ -187,7 +187,31 @@ min-height: 0;
 
     function renderAtelierPie(elementId, counts) {
   const el = document.getElementById(elementId);
-  const entries = Object.entries(counts);
+  const prioriteReponse = nom => {
+  const t = texte(nom).toUpperCase();
+
+  if (t === 'OUI') {
+    return 1;
+  }
+
+  if (t === 'NON') {
+    return 2;
+  }
+
+  if (
+    t.includes("JE N'Y AI PAS PARTICIPÉ") ||
+    t.includes("JE N’Y AI PAS PARTICIPÉ") ||
+    t.includes("JE N'Y AI PAS PARTICIPE") ||
+    t.includes("JE N’Y AI PAS PARTICIPE")
+  ) {
+    return 3;
+  }
+
+  return 4;
+};
+
+const entries = Object.entries(counts)
+  .sort((a, b) => prioriteReponse(a[0]) - prioriteReponse(b[0]));
 
   if (!entries.length) {
     el.innerHTML = '<div class="empty">Aucune réponse</div>';
