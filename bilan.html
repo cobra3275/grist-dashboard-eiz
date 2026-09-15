@@ -34,7 +34,7 @@
 
     .card {
       height: 100%;
-min-height: 0;
+      min-height: 0;
       border-radius: 20px;
       padding: 18px;
       display: flex;
@@ -75,7 +75,13 @@ min-height: 0;
     .pie {
       width: 320px;
       height: 320px;
-      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .pie svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .pie-legend {
@@ -99,6 +105,11 @@ min-height: 0;
     @media (max-width: 700px) {
       .bilan-grid {
         grid-template-columns: 1fr;
+      }
+
+      .pie {
+        width: 240px;
+        height: 240px;
       }
     }
   </style>
@@ -136,6 +147,7 @@ min-height: 0;
     }
 
     function renderPie(elementId, counts) {
+
       const el = document.getElementById(elementId);
       const entries = Object.entries(counts);
 
@@ -144,56 +156,143 @@ min-height: 0;
         return;
       }
 
-      const total = entries.reduce((sum, [, nb]) => sum + nb, 0);
+      const total = entries.reduce(
+        (sum, [, nb]) => sum + nb,
+        0
+      );
 
       const couleur = nom => {
+
         const t = texte(nom).toUpperCase();
 
-        if (t === 'OUI') return '#2e9d50';
-        if (t === 'NON') return '#d92b2b';
+        if (t === 'OUI') {
+          return '#2e9d50';
+        }
+
+        if (t === 'NON') {
+          return '#d92b2b';
+        }
 
         return '#94a3b8';
       };
 
-      let depart = 0;
-      const portions = [];
 
-      entries.forEach(([nom, nb]) => {
-        const pct = (nb / total) * 100;
-        const fin = depart + pct;
+      const cx = 120;
+      const cy = 120;
+      const rayon = 105;
+      let angleDepart = -90;
 
-        portions.push(
-          `${couleur(nom)} ${depart}% ${fin}%`
-        );
 
-        depart = fin;
-      });
+      function coordonnees(angle) {
+
+        const rad = (angle * Math.PI) / 180;
+
+        return {
+          x: cx + rayon * Math.cos(rad),
+          y: cy + rayon * Math.sin(rad)
+        };
+      }
+
+
+      const secteurs = entries.map(
+        ([nom, nb]) => {
+
+          const pct = nb / total;
+          const angle = pct * 360;
+          const couleurSecteur = couleur(nom);
+
+          if (pct >= 0.999999) {
+
+            angleDepart += angle;
+
+            return `
+              <circle
+                cx="${cx}"
+                cy="${cy}"
+                r="${rayon}"
+                fill="${couleurSecteur}">
+              </circle>
+            `;
+          }
+
+          const debut =
+            coordonnees(angleDepart);
+
+          const angleFin =
+            angleDepart + angle;
+
+          const fin =
+            coordonnees(angleFin);
+
+          const grandArc =
+            angle > 180 ? 1 : 0;
+
+          const chemin = `
+            M ${cx} ${cy}
+            L ${debut.x} ${debut.y}
+            A ${rayon} ${rayon}
+            0 ${grandArc} 1
+            ${fin.x} ${fin.y}
+            Z
+          `;
+
+          angleDepart = angleFin;
+
+          return `
+            <path
+              d="${chemin}"
+              fill="${couleurSecteur}">
+            </path>
+          `;
+        }
+      ).join('');
+
 
       el.innerHTML = `
         <div class="pie-wrapper">
 
-          <div class="pie"
-               style="background: conic-gradient(${portions.join(',')});">
+          <div class="pie">
+
+            <svg
+              viewBox="0 0 240 240"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true">
+
+              ${secteurs}
+
+            </svg>
+
           </div>
 
           <div class="pie-legend">
-            ${entries.map(([nom, nb]) => {
-              const pct = Math.round((nb / total) * 1000) / 10;
 
-              return `
-                <div>
-                  <span class="pie-dot"
-                        style="background:${couleur(nom)}">
-                  </span>
-                  ${nom} : ${pct}%
-                </div>
-              `;
-            }).join('')}
+            ${entries.map(
+              ([nom, nb]) => {
+
+                const pct =
+                  Math.round(
+                    (nb / total) * 1000
+                  ) / 10;
+
+                return `
+                  <div>
+                    <span
+                      class="pie-dot"
+                      style="background:${couleur(nom)}">
+                    </span>
+
+                    ${nom} : ${pct}%
+                  </div>
+                `;
+              }
+            ).join('')}
+
           </div>
 
         </div>
       `;
     }
+
 
     grist.onRecords(function(records) {
 
@@ -202,21 +301,34 @@ min-height: 0;
 
       records.forEach(r => {
 
-        const p = texte(r['Participer_prochain_EIZ']);
-        const rec = texte(r['Recommander_EIZ']);
+        const p =
+          texte(r['Participer_prochain_EIZ']);
+
+        const rec =
+          texte(r['Recommander_EIZ']);
 
         if (p) {
-          participer[p] = (participer[p] || 0) + 1;
+          participer[p] =
+            (participer[p] || 0) + 1;
         }
 
         if (rec) {
-          recommander[rec] = (recommander[rec] || 0) + 1;
+          recommander[rec] =
+            (recommander[rec] || 0) + 1;
         }
 
       });
 
-      renderPie('participer', participer);
-      renderPie('recommander', recommander);
+
+      renderPie(
+        'participer',
+        participer
+      );
+
+      renderPie(
+        'recommander',
+        recommander
+      );
 
     });
   </script>
