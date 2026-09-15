@@ -65,13 +65,15 @@
       font-weight: 800;
       margin-bottom: 8px;
     }
-.atelier-subtitle {
-  display: inline-block;
-  margin-top: 8px;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.3;
-}
+
+    .atelier-subtitle {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.3;
+    }
+
     .atelier-chart {
       width: 100%;
       flex: 1;
@@ -94,8 +96,13 @@
       height: 300px;
       max-width: 90%;
       aspect-ratio: 1 / 1;
-      border-radius: 50%;
       flex-shrink: 0;
+    }
+
+    .pie svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .pie-legend {
@@ -140,29 +147,32 @@
 
 <body>
 
-<h1>ÉVALUATION DES ATELIERS – EIZ CAZAUX 2026</h1>
+  <h1>ÉVALUATION DES ATELIERS – EIZ CAZAUX 2026</h1>
+
   <div class="ateliers-grid">
 
     <div class="card">
-    <div class="card-title">
-  ATELIER 1<br>
-  <span class="atelier-subtitle">Détection – Identification – Prélèvement</span>
-</div>
+      <div class="card-title">
+        ATELIER 1<br>
+        <span class="atelier-subtitle">Détection – Identification – Prélèvement</span>
+      </div>
       <div class="atelier-chart" id="atelier1"></div>
     </div>
 
     <div class="card">
-<div class="card-title">
-  ATELIER 2<br>
-  <span class="atelier-subtitle">Cellule analyse Interservices</span>
-</div>      <div class="atelier-chart" id="atelier2"></div>
+      <div class="card-title">
+        ATELIER 2<br>
+        <span class="atelier-subtitle">Cellule analyse Interservices</span>
+      </div>
+      <div class="atelier-chart" id="atelier2"></div>
     </div>
 
     <div class="card">
-<div class="card-title">
-  ATELIER 3<br>
-  <span class="atelier-subtitle">Coordination interservices</span>
-</div>      <div class="atelier-chart" id="atelier3"></div>
+      <div class="card-title">
+        ATELIER 3<br>
+        <span class="atelier-subtitle">Coordination interservices</span>
+      </div>
+      <div class="atelier-chart" id="atelier3"></div>
     </div>
 
   </div>
@@ -216,7 +226,6 @@
     function renderAtelierPie(elementId, counts) {
 
       const el = document.getElementById(elementId);
-
       const entries = Object.entries(counts);
 
       if (!entries.length) {
@@ -230,38 +239,89 @@
         0
       );
 
-      let depart = 0;
+      const cx = 120;
+      const cy = 120;
+      const rayon = 105;
+      let angleDepart = -90;
 
-      const portions = [];
+      function coordonnees(angle) {
+        const rad = (angle * Math.PI) / 180;
 
-      entries.forEach(([nom, nb], index) => {
+        return {
+          x: cx + rayon * Math.cos(rad),
+          y: cy + rayon * Math.sin(rad)
+        };
+      }
 
-        const pct = (nb / total) * 100;
+      const secteurs = entries.map(
+        ([nom, nb], index) => {
 
-        const fin = depart + pct;
+          const pct = nb / total;
+          const angle = pct * 360;
+          const couleur =
+            couleurReponse(nom, index);
 
-        const couleur =
-          couleurReponse(nom, index);
+          if (pct >= 0.999999) {
 
-        portions.push(
-          `${couleur} ${depart}% ${fin}%`
-        );
+            angleDepart += angle;
 
-        depart = fin;
-      });
+            return `
+              <circle
+                cx="${cx}"
+                cy="${cy}"
+                r="${rayon}"
+                fill="${couleur}">
+              </circle>
+            `;
+          }
+
+          const debut =
+            coordonnees(angleDepart);
+
+          const angleFin =
+            angleDepart + angle;
+
+          const fin =
+            coordonnees(angleFin);
+
+          const grandArc =
+            angle > 180 ? 1 : 0;
+
+          const chemin = `
+            M ${cx} ${cy}
+            L ${debut.x} ${debut.y}
+            A ${rayon} ${rayon}
+            0 ${grandArc} 1
+            ${fin.x} ${fin.y}
+            Z
+          `;
+
+          angleDepart = angleFin;
+
+          return `
+            <path
+              d="${chemin}"
+              fill="${couleur}">
+            </path>
+          `;
+        }
+      ).join('');
 
 
       el.innerHTML = `
         <div class="pie-wrapper">
 
-          <div
-            class="pie"
-            style="
-              background:
-              conic-gradient(
-                ${portions.join(',')}
-              );
-            ">
+          <div class="pie">
+
+            <svg
+              viewBox="0 0 240 240"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true">
+
+              ${secteurs}
+
+            </svg>
+
           </div>
 
           <div class="pie-legend">
@@ -285,10 +345,7 @@
 
                     <span
                       class="pie-dot"
-                      style="
-                        background:
-                        ${couleur}
-                      ">
+                      style="background:${couleur}">
                     </span>
 
                     ${nom} : ${pct}%
@@ -331,7 +388,6 @@
           ]
         );
 
-
         if (v1) {
           atelier1[v1] =
             (atelier1[v1] || 0) + 1;
@@ -348,7 +404,6 @@
         }
 
       });
-
 
       renderAtelierPie(
         'atelier1',
