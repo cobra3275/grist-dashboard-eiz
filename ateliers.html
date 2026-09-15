@@ -71,12 +71,17 @@ min-height: 0;
       justify-content: center;
       gap: 12px;
     }
-    .pie {
-      width: 240px;
-      height: 240px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+  .pie {
+  width: 240px;
+  height: 240px;
+  flex-shrink: 0;
+}
+
+.pie svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
     .pie-legend {
       font-size: 12px;
       line-height: 1.9;
@@ -181,44 +186,90 @@ min-height: 0;
     }
 
     function renderAtelierPie(elementId, counts) {
-      const el = document.getElementById(elementId);
-      const entries = Object.entries(counts);
+  const el = document.getElementById(elementId);
+  const entries = Object.entries(counts);
 
-      if (!entries.length) {
-        el.innerHTML = '<div class="empty">Aucune réponse</div>';
-        return;
-      }
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty">Aucune réponse</div>';
+    return;
+  }
 
-      const total = entries.reduce((sum, [, nb]) => sum + nb, 0);
-      let depart = 0;
-      const portions = [];
+  const total = entries.reduce((sum, [, nb]) => sum + nb, 0);
 
-      entries.forEach(([nom, nb], index) => {
-        const pct = (nb / total) * 100;
-        const fin = depart + pct;
-        const couleur = couleurReponse(nom, index);
-        portions.push(`${couleur} ${depart}% ${fin}%`);
-        depart = fin;
-      });
+  const cx = 120;
+  const cy = 120;
+  const rayon = 105;
+  let angleDepart = -90;
 
-      el.innerHTML = `
-        <div class="pie-wrapper">
-          <div class="pie" style="background: conic-gradient(${portions.join(',')});"></div>
-          <div class="pie-legend">
-            ${entries.map(([nom, nb], index) => {
-              const pct = Math.round((nb / total) * 1000) / 10;
-              const couleur = couleurReponse(nom, index);
-              return `
-                <div>
-                  <span class="pie-dot" style="background:${couleur}"></span>
-                  ${nom} : ${pct}%
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
+  function coordonnees(angle) {
+    const rad = (angle * Math.PI) / 180;
+    return {
+      x: cx + rayon * Math.cos(rad),
+      y: cy + rayon * Math.sin(rad)
+    };
+  }
+
+  const secteurs = entries.map(([nom, nb], index) => {
+    const pct = nb / total;
+    const angle = pct * 360;
+    const couleur = couleurReponse(nom, index);
+
+    if (pct >= 0.999999) {
+      angleDepart += angle;
+      return `
+        <circle
+          cx="${cx}"
+          cy="${cy}"
+          r="${rayon}"
+          fill="${couleur}">
+        </circle>
       `;
     }
+
+    const debut = coordonnees(angleDepart);
+    const angleFin = angleDepart + angle;
+    const fin = coordonnees(angleFin);
+    const grandArc = angle > 180 ? 1 : 0;
+
+    const chemin = `
+      M ${cx} ${cy}
+      L ${debut.x} ${debut.y}
+      A ${rayon} ${rayon} 0 ${grandArc} 1 ${fin.x} ${fin.y}
+      Z
+    `;
+
+    angleDepart = angleFin;
+
+    return `<path d="${chemin}" fill="${couleur}"></path>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="pie-wrapper">
+      <div class="pie">
+        <svg
+          viewBox="0 0 240 240"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true">
+          ${secteurs}
+        </svg>
+      </div>
+
+      <div class="pie-legend">
+        ${entries.map(([nom, nb], index) => {
+          const pct = Math.round((nb / total) * 1000) / 10;
+          const couleur = couleurReponse(nom, index);
+
+          return `
+            <div>
+              <span class="pie-dot" style="background:${couleur}"></span>
+              ${nom} : ${pct}%
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
 
     grist.onRecords(function(records) {
       const atelier1 = {};
