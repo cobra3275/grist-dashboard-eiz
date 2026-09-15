@@ -650,7 +650,31 @@ if (
   });
 
   const total = valeurs.length;
-  const entries = Object.entries(compte);
+
+const prioriteCouleur = nom => {
+  const texteNom = nom.toUpperCase();
+
+  if (
+    texteNom === 'EXCELLENT' ||
+    texteNom === 'ADAPTÉ' ||
+    texteNom === 'ADAPTÉE'
+  ) {
+    return 1; // VERT
+  }
+
+  if (
+    texteNom === 'BON' ||
+    texteNom === 'TROP COURTE' ||
+    texteNom === 'TROP LENT'
+  ) {
+    return 2; // ORANGE
+  }
+
+  return 3; // ROUGE
+};
+
+const entries = Object.entries(compte)
+  .sort((a, b) => prioriteCouleur(a[0]) - prioriteCouleur(b[0]));
 
   const couleurs = entries.map(([nom]) => {
     const texteNom = nom.toUpperCase();
