@@ -296,8 +296,13 @@ gap: 12px;
 .pie {
   width: 140px;
   height: 140px;
-  border-radius: 50%;
   flex-shrink: 0;
+}
+
+.pie svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
     #fonction .pie,
 #organisme .pie {
@@ -474,34 +479,92 @@ function renderBarChart(elementId, counts) {
     '#84cc16'
   ];
 
-  let depart = 0;
-  const portions = [];
+  const cx = 120;
+  const cy = 120;
+  const rayon = 105;
+  let angleDepart = -90;
 
-  entries.forEach(([nom, nb], index) => {
-    const pct = (nb / total) * 100;
-    const fin = depart + pct;
-    portions.push(`${couleurs[index % couleurs.length]} ${depart}% ${fin}%`);
-    depart = fin;
-  });
+  function coordonnees(angle) {
+    const rad = (angle * Math.PI) / 180;
 
+    return {
+      x: cx + rayon * Math.cos(rad),
+      y: cy + rayon * Math.sin(rad)
+    };
+  }
 
-      el.innerHTML = `
+  const secteurs = entries.map(([nom, nb], index) => {
+    const pct = nb / total;
+    const angle = pct * 360;
+    const couleur = couleurs[index % couleurs.length];
+
+    if (pct >= 0.999999) {
+      angleDepart += angle;
+
+      return `
+        <circle
+          cx="${cx}"
+          cy="${cy}"
+          r="${rayon}"
+          fill="${couleur}">
+        </circle>
+      `;
+    }
+
+    const debut = coordonnees(angleDepart);
+    const angleFin = angleDepart + angle;
+    const fin = coordonnees(angleFin);
+    const grandArc = angle > 180 ? 1 : 0;
+
+    const chemin = `
+      M ${cx} ${cy}
+      L ${debut.x} ${debut.y}
+      A ${rayon} ${rayon} 0 ${grandArc} 1 ${fin.x} ${fin.y}
+      Z
+    `;
+
+    angleDepart = angleFin;
+
+    return `
+      <path
+        d="${chemin}"
+        fill="${couleur}">
+      </path>
+    `;
+  }).join('');
+
+  el.innerHTML = `
     <div class="pie-wrapper">
-      <div class="pie" style="background: conic-gradient(${portions.join(',')});"></div>
-      
+
+      <div class="pie">
+        <svg
+          viewBox="0 0 240 240"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true">
+          ${secteurs}
+        </svg>
+      </div>
+
       <div class="pie-legend">
         ${entries.map(([nom, nb], index) => {
           const pct = Math.round((nb / total) * 1000) / 10;
+          const couleur = couleurs[index % couleurs.length];
+
           return `
             <div>
-              <span class="pie-dot" style="background:${couleurs[index % couleurs.length]}"></span>
+              <span
+                class="pie-dot"
+                style="background:${couleur}">
+              </span>
               ${nom} : ${pct}%
             </div>
           `;
         }).join('')}
       </div>
+
     </div>
   `;
+}
 }
     function renderSatisfaction(elementId, records, columnName) {
   const el = document.getElementById(elementId);
@@ -611,19 +674,71 @@ if (
     return '#d92b2b';
   });
 
-  let depart = 0;
-  const portions = [];
+  const cx = 120;
+  const cy = 120;
+  const rayon = 105;
+  let angleDepart = -90;
 
-  entries.forEach(([, nb], index) => {
-    const pct = (nb / total) * 100;
-    const fin = depart + pct;
-    portions.push(`${couleurs[index]} ${depart}% ${fin}%`);
-    depart = fin;
-  });
+  function coordonnees(angle) {
+    const rad = (angle * Math.PI) / 180;
+
+    return {
+      x: cx + rayon * Math.cos(rad),
+      y: cy + rayon * Math.sin(rad)
+    };
+  }
+
+  const secteurs = entries.map(([, nb], index) => {
+    const pct = nb / total;
+    const angle = pct * 360;
+    const couleur = couleurs[index];
+
+    if (pct >= 0.999999) {
+      angleDepart += angle;
+
+      return `
+        <circle
+          cx="${cx}"
+          cy="${cy}"
+          r="${rayon}"
+          fill="${couleur}">
+        </circle>
+      `;
+    }
+
+    const debut = coordonnees(angleDepart);
+    const angleFin = angleDepart + angle;
+    const fin = coordonnees(angleFin);
+    const grandArc = angle > 180 ? 1 : 0;
+
+    const chemin = `
+      M ${cx} ${cy}
+      L ${debut.x} ${debut.y}
+      A ${rayon} ${rayon} 0 ${grandArc} 1 ${fin.x} ${fin.y}
+      Z
+    `;
+
+    angleDepart = angleFin;
+
+    return `
+      <path
+        d="${chemin}"
+        fill="${couleur}">
+      </path>
+    `;
+  }).join('');
 
   el.innerHTML = `
     <div class="pie-wrapper">
-     <div class="pie" style="background: conic-gradient(${portions.join(',')});"></div>
+
+      <div class="pie">
+        <svg
+          viewBox="0 0 240 240"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true">
+          ${secteurs}
+        </svg>
+      </div>
 
       <div class="pie-legend">
         ${entries.map(([nom, nb], index) => {
@@ -631,12 +746,16 @@ if (
 
           return `
             <div>
-              <span class="pie-dot" style="background:${couleurs[index]}"></span>
+              <span
+                class="pie-dot"
+                style="background:${couleurs[index]}">
+              </span>
               ${nom} : ${pct}%
             </div>
           `;
         }).join('')}
       </div>
+
     </div>
   `;
 }
