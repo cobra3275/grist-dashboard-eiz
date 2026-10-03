@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>ÉVALUATION JEU DIRIGÉ – EIZ CAZAUX 2026</title>
+  <title>ÉVALUATION JOUR 2 – EIZ CAZAUX 2026</title>
 
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 
@@ -30,7 +30,7 @@
 
     .ateliers-grid {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, 1fr);
       gap: 10px;
       width: 100%;
       min-height: calc(100vh - 90px);
@@ -116,6 +116,10 @@
     }
 
     @media (max-width: 900px) {
+      .ateliers-grid {
+        grid-template-columns: 1fr;
+      }
+
       .pie {
         width: 240px;
         height: 240px;
@@ -126,19 +130,27 @@
 
 <body>
 
-  <h1>LE JEU DIRIGÉ A-T-IL RÉPONDU À VOS ATTENTES ?</h1>
+  <h1>ÉVALUATION DES ACTIVITÉS – JOUR 2</h1>
 
   <div class="ateliers-grid">
 
     <div class="card">
       <div class="card-title">
-        JEU DIRIGÉ<br>
+        ATELIER 3<br>
         <span class="atelier-subtitle">
-          
+          COORDINATION INTERSERVICE – JEU SÉRIEUX / SIMCATA
         </span>
       </div>
 
-      <div class="atelier-chart" id="atelier1"></div>
+      <div class="atelier-chart" id="atelier3J2"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        JEU DIRIGÉ
+      </div>
+
+      <div class="atelier-chart" id="jeuDirige"></div>
     </div>
 
   </div>
@@ -154,7 +166,6 @@
     }
 
     function couleurReponse(nom, index) {
-
       const t = texte(nom).toUpperCase();
 
       if (t === 'OUI') {
@@ -188,35 +199,32 @@
       return couleurs[index % couleurs.length];
     }
 
-
     function renderAtelierPie(elementId, counts) {
 
       const el = document.getElementById(elementId);
+
       const prioriteReponse = nom => {
-  const t = texte(nom).toUpperCase();
+        const t = texte(nom).toUpperCase();
 
-  if (t === 'OUI') {
-    return 1;
-  }
+        if (t === 'OUI') return 1;
+        if (t === 'NON') return 2;
 
-  if (t === 'NON') {
-    return 2;
-  }
+        if (
+          t.includes("JE N'Y AI PAS PARTICIPÉ") ||
+          t.includes("JE N’Y AI PAS PARTICIPÉ") ||
+          t.includes("JE N'Y AI PAS PARTICIPE") ||
+          t.includes("JE N’Y AI PAS PARTICIPE")
+        ) {
+          return 3;
+        }
 
-  if (
-    t.includes("JE N'Y AI PAS PARTICIPÉ") ||
-    t.includes("JE N’Y AI PAS PARTICIPÉ") ||
-    t.includes("JE N'Y AI PAS PARTICIPE") ||
-    t.includes("JE N’Y AI PAS PARTICIPE")
-  ) {
-    return 3;
-  }
+        return 4;
+      };
 
-  return 4;
-};
-
-const entries = Object.entries(counts)
-  .sort((a, b) => prioriteReponse(a[0]) - prioriteReponse(b[0]));
+      const entries = Object.entries(counts)
+        .sort((a, b) =>
+          prioriteReponse(a[0]) - prioriteReponse(b[0])
+        );
 
       if (!entries.length) {
         el.innerHTML =
@@ -235,7 +243,6 @@ const entries = Object.entries(counts)
       let angleDepart = -90;
 
       function coordonnees(angle) {
-
         const rad = (angle * Math.PI) / 180;
 
         return {
@@ -253,7 +260,6 @@ const entries = Object.entries(counts)
             couleurReponse(nom, index);
 
           if (pct >= 0.999999) {
-
             angleDepart += angle;
 
             return `
@@ -297,7 +303,6 @@ const entries = Object.entries(counts)
           `;
         }
       ).join('');
-
 
       el.innerHTML = `
         <div class="pie-wrapper">
@@ -350,28 +355,41 @@ const entries = Object.entries(counts)
       `;
     }
 
-
     grist.onRecords(function(records) {
 
-      const atelier1 = {};
+      const atelier3J2 = {};
+      const jeuDirige = {};
 
       records.forEach(r => {
 
-        const v1 = texte(
+        const vAtelier3 = texte(
+          r['Atelier_3_Coordination_interservice_J2']
+        );
+
+        if (vAtelier3) {
+          atelier3J2[vAtelier3] =
+            (atelier3J2[vAtelier3] || 0) + 1;
+        }
+
+        const vJeuDirige = texte(
           r['Jeu_dirige']
         );
 
-        if (v1) {
-          atelier1[v1] =
-            (atelier1[v1] || 0) + 1;
+        if (vJeuDirige) {
+          jeuDirige[vJeuDirige] =
+            (jeuDirige[vJeuDirige] || 0) + 1;
         }
 
       });
 
+      renderAtelierPie(
+        'atelier3J2',
+        atelier3J2
+      );
 
       renderAtelierPie(
-        'atelier1',
-        atelier1
+        'jeuDirige',
+        jeuDirige
       );
 
     });
