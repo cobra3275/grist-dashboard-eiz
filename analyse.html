@@ -148,14 +148,14 @@
     grist.onRecords(function(records) {
 
       afficherReponses(
-        'pointsForts',
-        records.map(r => r['POINTS_FORTS'])
-      );
+  'pointsForts',
+  records.map(r => r['CE_QUE_VOUS_AVEZ_AIME'])
+);
 
-      afficherReponses(
-        'difficultes',
-        records.map(r => r['DIFFICULTES_RENCONTREES'])
-      );
+afficherReponses(
+  'difficultes',
+  records.map(r => r['CE_QUE_VOUS_AVEZ_MOINS_AIME'])
+);
 
       afficherReponses(
         'ameliorations',
