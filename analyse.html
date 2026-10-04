@@ -37,10 +37,18 @@
       padding: 16px;
     }
 
-    .points-forts { background: #e8f5e9; }
-    .difficultes { background: #fdecec; }
-    .ameliorations { background: #fff4dc; }
-    .appris { background: #eaf4fc; }
+    .points-forts {
+      background: #e8f5e9;
+    }
+
+    .difficultes {
+      background: #fdecec;
+    }
+
+    .ameliorations {
+      background: #fff4dc;
+      grid-column: 1 / -1;
+    }
 
     .card-title {
       text-align: center;
@@ -74,6 +82,10 @@
       .analyse-grid {
         grid-template-columns: 1fr;
       }
+
+      .ameliorations {
+        grid-column: auto;
+      }
     }
   </style>
 </head>
@@ -85,23 +97,24 @@
   <div class="analyse-grid">
 
     <div class="card points-forts">
-      <div class="card-title">QU'AVEZ-VOUS AIMÉ AU COURS DE CET EIZ ?</div>
+      <div class="card-title">
+        QU'AVEZ-VOUS AIMÉ AU COURS DE CET EIZ ?
+      </div>
       <div class="reponses" id="pointsForts"></div>
     </div>
 
     <div class="card difficultes">
-      <div class="card-title">QU'AVEZ-VOUS MOINS AIMÉ AU COURS DE CET EIZ ?</div>
+      <div class="card-title">
+        QU'AVEZ-VOUS MOINS AIMÉ AU COURS DE CET EIZ ?
+      </div>
       <div class="reponses" id="difficultes"></div>
     </div>
 
     <div class="card ameliorations">
-      <div class="card-title">PROPOSITIONS D’AMÉLIORATION</div>
+      <div class="card-title">
+        PROPOSITIONS D’AMÉLIORATION
+      </div>
       <div class="reponses" id="ameliorations"></div>
-    </div>
-
-    <div class="card appris">
-      <div class="card-title">J’AI APPRIS</div>
-      <div class="reponses" id="appris"></div>
     </div>
 
   </div>
@@ -147,11 +160,6 @@
       afficherReponses(
         'ameliorations',
         records.map(r => r['PROPOSITIONS_D_AMELIORATION'])
-      );
-
-      afficherReponses(
-        'appris',
-        records.map(r => r['J_AI_APPRIS'])
       );
 
     });
