@@ -469,7 +469,22 @@ function renderBarChart(elementId, counts) {
     </div>
   `;
 }
-    function renderPieChart(elementId, counts) {
+    function couleurOrganisme(nom) {
+  const t = texte(nom).toUpperCase();
+
+  if (t.includes('POLICE') || t.includes('GENDARMERIE')) return '#3b82f6';
+  if (t.includes('SDIS') || t.includes('POMPIERS')) return '#ef4444';
+  if (t.includes('IUT')) return '#7c3aed';
+  if (t.includes('PRÉFECTURE') || t.includes('PREFECTURE')) return '#f59e0b';
+  if (t.includes('SAMU') || t.includes('SANTÉ') || t.includes('SANTE')) return '#ffffff';
+  if (t.includes('JUSTICE')) return '#000000';
+  if (t.includes('DÉMINAGE') || t.includes('DEMINAGE')) return '#ffd600';
+  if (t.includes('ARMÉE') || t.includes('ARMEE')) return '#84cc16';
+  if (t.includes('AUTRE')) return '#8b4513';
+
+  return '#94a3b8';
+}
+    function renderPieChart(elementId, counts, couleursPersonnalisees = false) {
   const el = document.getElementById(elementId);
   const entries = Object.entries(counts);
 
@@ -508,7 +523,9 @@ function renderBarChart(elementId, counts) {
   const secteurs = entries.map(([nom, nb], index) => {
     const pct = nb / total;
     const angle = pct * 360;
-    const couleur = couleurs[index % couleurs.length];
+    const couleur = couleursPersonnalisees
+  ? couleurOrganisme(nom)
+  : couleurs[index % couleurs.length];
 
     if (pct >= 0.999999) {
       angleDepart += angle;
@@ -560,7 +577,9 @@ function renderBarChart(elementId, counts) {
       <div class="pie-legend">
         ${entries.map(([nom, nb], index) => {
           const pct = Math.round((nb / total) * 1000) / 10;
-          const couleur = couleurs[index % couleurs.length];
+          const couleur = couleursPersonnalisees
+  ? couleurOrganisme(nom)
+  : couleurs[index % couleurs.length];
 
           return `
             <div>
@@ -895,7 +914,7 @@ records.forEach(r => {
   }
 });
 
-renderPieChart('organisme', organismes);
+renderPieChart('organisme', organismes, true);
       renderSatisfactionPie('accueil', records, 'Accueil_sur_site');   
       renderSatisfactionPie('restauration', records, 'Restauration');
       renderSatisfactionPie('site', records, 'Site_de_manoeuvre');
